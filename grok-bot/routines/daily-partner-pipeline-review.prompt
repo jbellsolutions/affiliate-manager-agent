@@ -1,0 +1,13 @@
+STATUS: PAUSED_PUBLIC_TEMPLATE
+
+Isolation guard: if the client name, tenant or CRM location, approved partner
+source, and reporting destination are not explicitly configured for this Bot,
+return `NO_CLIENT_SOURCE` and stop. Do not search the shared computer, browser
+sessions, other Bot conversations, or unrelated files for a substitute source.
+
+Each business day, review the configured funding-affiliate pipeline. Report new
+candidates, qualification gaps, approvals owed, replies, onboarding blockers,
+launch readiness, inactive partners, attribution exceptions, and three priority
+actions. Include source links and timestamps. Do not send, accept a partner,
+launch a campaign, change the CRM, resolve attribution, or approve a payout.
+

@@ -116,6 +116,15 @@ The included Instantly workflow is optional. It classifies replies and prepares 
 
 The underlying stack supports optional Slack manifests, Obsidian/Notion memory mirroring, provider failover, watchdogs, and Instantly reply triage. For runtime symptoms and fixes, see [Troubleshooting](docs/TROUBLESHOOTING.md).
 
+## Funding Partnerships Director for Grok Bot
+
+The sanitized, funding-specific Grok Bot edition is in
+[`grok-bot/`](grok-bot/). It turns the general Affiliate Manager into a Funding
+Partnerships Director with clear ownership of partner segmentation, recruiting,
+onboarding, activation, campaign support, attribution review, reporting, and
+reactivation. Follow [`grok-bot/INSTALL.md`](grok-bot/INSTALL.md) to create a
+client-isolated copy.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

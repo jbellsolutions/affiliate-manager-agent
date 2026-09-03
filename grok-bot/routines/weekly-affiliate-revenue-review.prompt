@@ -1,0 +1,14 @@
+STATUS: PAUSED_PUBLIC_TEMPLATE
+
+Isolation guard: if the client name, tenant, approved partner/CRM/revenue
+sources, reporting period, and destination are not explicitly configured for
+this Bot, return `NO_CLIENT_SOURCE` and stop. Never use another client's data on
+the shared computer.
+
+Once each week, prepare a source-linked funding-affiliate review: prospects by
+stage, recruiting activity, approvals, new partners, launch rate, active and
+dormant partners, referred opportunities, funding-stage outcomes, verified
+collected revenue, attribution conflicts, payout-review items, reactivation
+opportunities, and three recommended experiments. Label unavailable metrics as
+unavailable. Do not change any source record or release a payout.
+

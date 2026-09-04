@@ -10,6 +10,14 @@ cleanup() {
   if [[ "$CONTAINER_NAME" == affiliate-manager-runtime-smoke-* ]]; then
     docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
   fi
+  # The runtime deliberately chowns its data mount to the unprivileged Hermes
+  # user. Restore ownership so non-root CI runners can remove the test fixture.
+  if [ -n "$RUNTIME_DIR" ] && [ -d "$RUNTIME_DIR" ] &&
+     [[ "$(basename "$RUNTIME_DIR")" == affiliate-manager-runtime.* ]]; then
+    docker run --rm --user root --entrypoint /bin/chown \
+      -v "$RUNTIME_DIR:/cleanup" "$IMAGE" \
+      -R "$(id -u):$(id -g)" /cleanup >/dev/null 2>&1 || true
+  fi
   [ -n "$RUNTIME_DIR" ] && [ -d "$RUNTIME_DIR" ] &&
     [[ "$(basename "$RUNTIME_DIR")" == affiliate-manager-runtime.* ]] &&
     rm -rf -- "$RUNTIME_DIR"

@@ -31,53 +31,66 @@ Reporting and optimization ← Attribution review ← Activation and support
 
 The default role files make three rules explicit: the agent drafts before it sends, never changes commercial terms or payouts without approval, and never commits credentials or prospect data to git.
 
-## Quick Start
+## Start in one message
 
-### 1. Prepare a fresh Ubuntu host
+Give this repository link to a capable setup agent:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/jbellsolutions/affiliate-manager-agent/main/provision-vps.sh | bash
-cd ~/affiliate-manager-agent
+```text
+https://github.com/jbellsolutions/affiliate-manager-agent
 ```
 
-### 2. Create the agent configuration
+Then say:
 
-```bash
-cp agent.example.env agent.env
-nano agent.env
+```text
+Install this Affiliate Manager for me. Read AGENTS.md and START-HERE.md first.
+Tell me what I need, what may cost money, what you will change, and every point
+where I must approve or sign in. Handle all technical work, keep credentials in
+private prompts or the secret vault, reuse my existing Orgo computer if it is
+the intended one, and finish only after the repository checks, a synthetic
+affiliate workflow, and one real channel reply all pass.
 ```
 
-Set `AGENT_NAME`, `BASE_DIR`, `FIREWORKS_API_KEY`, and any optional model or channel keys. Leave integrations blank until the core agent is healthy.
+That is the recommended beginner path. The setup agent performs the computer
+work and pauses only for billing, sign-in, OAuth consent, or private credential
+entry. [START-HERE.md](START-HERE.md) contains the complete handoff.
 
-### 3. Generate and launch the agent
+## What to have ready
 
-```bash
-./new-agent.sh agent.env
-cd /srv/affiliate-manager
-docker compose up -d
-```
+- An Orgo workspace with capacity for one 8 GB RAM / 4 vCPU computer.
+- One model provider supported by Hermes.
+- Your offer, ideal affiliate, approved terms, approved/prohibited claims, and
+  human approver.
+- Optional Slack, Telegram, CRM, affiliate-platform, calendar, inbox, file, or
+  Instantly access.
 
-### 4. Open the private dashboard
+No CRM or affiliate-platform login is needed to install and test the core agent.
+Connections are added only after it produces a correct local response.
 
-The UI binds to localhost by default. Use an SSH tunnel or a private network such as Tailscale:
+## What happens during setup
 
-```bash
-ssh -L 18789:127.0.0.1:18789 your-server
-```
+1. The setup agent presents a plain-English readiness and cost briefing.
+2. It inspects Orgo, reuses `affiliate-manager` when appropriate, or asks before
+   creating a billable computer.
+3. It installs the exact reviewed Hermes v0.21.0 release and this repository's
+   identity, skills, policy, private folders, and launchers.
+4. The owner completes model authentication privately.
+5. The agent runs a harmless local test, then connects only authorized tools.
+6. It runs the repository verification and a synthetic partner workflow.
+7. It delivers a completion card showing what is live, tested, and intentionally
+   left disconnected.
 
-Then open `http://127.0.0.1:18789` on your computer.
+The installation normally completes in one guided session once the required
+accounts are available. Provider downloads and authentication time vary.
 
-### 5. Load your business context
+## First assignment
 
-Open `hermes/data/AGENTS.md` and replace the bracketed setup prompts with your program goals, offer, partner criteria, commission rules, approved claims, escalation contacts, and systems of record. Never place passwords or API keys in this file.
+Use synthetic data first:
 
-### 6. Run a test assignment
+> Evaluate this made-up partner against our approved affiliate profile. Separate
+> facts from assumptions, recommend the next action, and draft a first-touch
+> message. Do not send, publish, accept, or change any record.
 
-Start with a contained request such as:
-
-> Review this partner profile, explain whether it matches our ideal affiliate, and draft a first-touch message. Do not send anything.
-
-Approve the result, refine the business rules, and only then connect recurring jobs or external systems.
+Only then add real systems or recurring work.
 
 ## Optional integrations
 
@@ -87,19 +100,27 @@ The core agent runs without external sales tools. Add only the systems you use a
 |---|---|---|
 | Partner pipeline | CRM or spreadsheet | Read first; require approval for writes |
 | Recruiting | LinkedIn, cold email, or existing network | Draft only until reviewed |
-| Communication | Slack or Telegram | Restrict allowed users and channels |
+| Communication | Slack or Telegram | Restrict allowed users and channels; Slack requires an owner Member-ID allowlist |
 | Scheduling | Cal.com or another calendar | Share approved booking links |
 | Attribution | Affiliate platform or reporting export | Analyze exports before direct access |
 | Payouts | Finance or affiliate platform | Never approve or release automatically |
 
-The included Instantly workflow is optional. It classifies replies and prepares drafts; it does not send replies without approval. See the comments in `agent.example.env` and the `skills/sales/instantly-*` folders.
+The included Instantly workflow is optional. It classifies replies and prepares
+drafts; it contains no automatic-send path. See `agent.example.env` and the
+`skills/sales/instantly-*` folders.
 
 ## What gets installed
 
-- A self-hosted Hermes agent with a resilient model fallback chain.
+- An Orgo-first Hermes v0.21.0 agent pinned to an exact release, commit, Docker
+  digest, and installer checksum.
 - The Affiliate Manager role and operating guardrails in `hermes/data/`.
+- Current checkpoints, memory, verification-on-stop, secret and PII redaction,
+  manual approvals, cron-deny, loop-stop, and reviewed-skill settings.
 - Persistent operational memory and a git-backed Obsidian vault.
 - Optional Slack and Telegram channels.
+- A private connection menu for supported CRM, affiliate, calendar, inbox, file,
+  and Instantly workflows.
+- An emergency external-work stop and owner-confirmed recovery path.
 - Optional Notion memory mirroring.
 - A watchdog that restarts an unhealthy container.
 
@@ -112,9 +133,31 @@ The included Instantly workflow is optional. It classifies replies and prepares 
 - Keep the dashboard private; it binds to `127.0.0.1` by default.
 - Review [SECURITY.md](SECURITY.md) before enabling recurring work.
 
-## Advanced setup
+The emergency stop is `./orgo/emergency-stop.sh "reason"`. It records the stop
+and disables the connected business-app MCP while leaving research and drafting
+available.
 
-The underlying stack supports optional Slack manifests, Obsidian/Notion memory mirroring, provider failover, watchdogs, and Instantly reply triage. For runtime symptoms and fixes, see [Troubleshooting](docs/TROUBLESHOOTING.md).
+## Advanced Docker/VPS setup
+
+Technical teams may still use the existing Docker/VPS path:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jbellsolutions/affiliate-manager-agent/main/provision-vps.sh | bash
+cd ~/affiliate-manager-agent
+./setup.sh
+```
+
+The Docker deployment now uses the same reviewed Hermes v0.21.0 image as the
+Orgo contract. The dashboard remains bound to localhost. For runtime symptoms,
+see [Troubleshooting](docs/TROUBLESHOOTING.md).
+
+## Updates and verification
+
+`./scripts/verify.sh` checks the install contract, scripts, Python, policies,
+runtime pins, secret-free seed, and a fresh deployment layout. Continuous
+verification runs on every push and pull request. See
+[Runtime and update policy](docs/UPDATES.md) for the reviewed baseline and safe
+release process.
 
 ## Funding Partnerships Director for Grok Bot
 

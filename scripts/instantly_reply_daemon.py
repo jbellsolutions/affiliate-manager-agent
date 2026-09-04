@@ -24,9 +24,15 @@ DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
 BOOKING_URL = os.environ.get('BOOKING_URL', '')
 BUSINESS_NAME = os.environ.get('BUSINESS_NAME', 'our team')
 API_BASE = "https://api.instantly.ai/api/v2"
-STATE_FILE = "/opt/data/scripts/instantly_reply_state.json"
-DRAFT_FILE = "/tmp/instantly_reply_drafts.json"
-POLL_INTERVAL = 60
+STATE_ROOT = os.path.expanduser(
+    os.environ.get(
+        "AFFILIATE_MANAGER_STATE_DIR",
+        "~/.hermes/affiliate-manager/state",
+    )
+)
+STATE_FILE = os.path.join(STATE_ROOT, "instantly_reply_state.json")
+DRAFT_FILE = os.path.join(STATE_ROOT, "instantly_reply_drafts.json")
+POLL_INTERVAL = int(os.environ.get("INSTANTLY_POLL_INTERVAL", "60"))
 ctx = ssl.create_default_context()
 
 # ─── State ──────────────────────────────────────────────────

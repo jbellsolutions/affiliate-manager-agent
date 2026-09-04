@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Open Affiliate Manager
+Comment=Talk to Affiliate Manager on this Orgo computer
+Exec=xfce4-terminal --title="Affiliate Manager" --command="bash -lc 'hermes; exec bash'"
+Icon=utilities-terminal
+Terminal=false
+Categories=Office;

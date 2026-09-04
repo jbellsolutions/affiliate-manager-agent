@@ -3,7 +3,7 @@
 # Installs Docker (+ compose plugin) and clones this repository. Run as a sudo user.
 #
 #   curl -fsSL https://raw.githubusercontent.com/jbellsolutions/affiliate-manager-agent/main/provision-vps.sh | bash
-#   # then:  cd ~/affiliate-manager-agent && cp agent.example.env agent.env && nano agent.env && ./new-agent.sh agent.env
+#   # then:  cd ~/affiliate-manager-agent && ./setup.sh
 set -euo pipefail
 
 REPO="${AFFILIATE_MANAGER_REPO:-https://github.com/jbellsolutions/affiliate-manager-agent.git}"
@@ -41,9 +41,9 @@ cat <<EOF
 
 ✅ VPS ready. Next:
   cd $DEST
-  cp agent.example.env agent.env
-  nano agent.env          # fill AGENT_NAME, BASE_DIR, FIREWORKS_API_KEY, channel tokens
-  ./new-agent.sh agent.env
+  ./setup.sh
 
-One VPS can host multiple agents — give each a distinct AGENT_NAME, BASE_DIR, and HERMES_PORT.
+The guided installer explains what it needs, collects private values without
+echoing them, installs the agent, starts it, waits for health, and verifies the
+reviewed runtime. One VPS can host multiple agents with distinct names and ports.
 EOF

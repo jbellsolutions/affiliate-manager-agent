@@ -1,76 +1,153 @@
-# Hermes config seed for a AI Guy Go To Market-style agent.
-# new-agent.sh renders this to <BASE_DIR>/hermes/data/config.yaml (HERMES_HOME=/opt/data),
-# substituting the __PLACEHOLDER__ values. On first start Hermes fills in the rest of
-# its defaults (config_version migration) — this seed only sets the non-default bits.
-#
-# ⚠  Keep this file SECRET-FREE: keys come from the environment via key_env (below)
-#    and via compose.yml. Do not paste API keys here.
+# Secret-free Hermes v0.21.0 configuration seed for the hosted Affiliate Manager.
+# new-agent.sh renders the placeholders into the private deployment directory.
 
-# ── Primary model: Fireworks DeepSeek V4 Pro (custom OpenAI-compatible) ────────
-# Custom primary MUST be config-driven (no HERMES_INFERENCE_BASE_URL env exists).
-# The key is read from the FIREWORKS_API_KEY env var named by key_env.
-# (Swap -pro → -flash for a cheaper/faster agent: ~$0.14/$0.28, 1M ctx.)
 model:
   default: accounts/fireworks/models/deepseek-v4-pro
   provider: custom
   base_url: https://api.fireworks.ai/inference/v1
   key_env: FIREWORKS_API_KEY
 
-# ── Fallback chain: tried in order on rate-limit / 5xx / auth / connection errors ──
 fallback_providers:
 - provider: custom
   model: deepseek-ai/DeepSeek-V4-Pro
   base_url: https://api.together.xyz/v1
   key_env: TOGETHER_API_KEY
 # __OPENROUTER_FALLBACK_START__
-# Optional third hop — new-agent.sh strips this entry when OPENROUTER_API_KEY is
-# blank in agent.env, so it only ships on agents that actually have the key.
 - provider: custom
   model: deepseek/deepseek-v4-pro
   base_url: https://openrouter.ai/api/v1
   key_env: OPENROUTER_API_KEY
 # __OPENROUTER_FALLBACK_END__
 
-# ── Sub-agent delegation ──────────────────────────────────────────────────────
-# Pin delegation to the same Fireworks endpoint — otherwise Hermes may default it
-# to a provider you have no key for (e.g. OpenRouter), and every sub-agent spawn 401s.
+toolsets:
+  - hermes-cli
+
+agent:
+  max_turns: 60
+  gateway_timeout: 1800
+  restart_drain_timeout: 60
+  api_max_retries: 3
+  tool_use_enforcement: auto
+  reasoning_effort: medium
+  verify_on_stop: true
+
+terminal:
+  backend: local
+  cwd: .
+  timeout: 180
+  persistent_shell: true
+  lifetime_seconds: 300
+
+browser:
+  inactivity_timeout: 120
+  command_timeout: 30
+  record_sessions: false
+  allow_private_urls: false
+  auto_local_for_private_urls: true
+
+checkpoints:
+  enabled: true
+  max_snapshots: 50
+  retention_days: 7
+  delete_orphans: true
+
+compression:
+  enabled: true
+  threshold: 0.5
+  target_ratio: 0.2
+  protect_last_n: 20
+  tail_mode: lean
+
+skills:
+  creation_nudge_interval: 15
+  write_approval: true
+  guard_agent_created: true
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  nudge_interval: 10
+  flush_min_turns: 6
+
 delegation:
   model: accounts/fireworks/models/deepseek-v4-pro
   provider: custom
   base_url: https://api.fireworks.ai/inference/v1
   key_env: FIREWORKS_API_KEY
+  inherit_mcp_toolsets: true
+  max_iterations: 50
+  child_timeout_seconds: 600
+  max_concurrent_children: 3
+  max_spawn_depth: 1
+  orchestrator_enabled: true
+  subagent_auto_approve: false
 
-# ── Channels ──────────────────────────────────────────────────────────────────
-# new-agent.sh sets these to true/false based on which tokens you put in agent.env.
-# An ENABLED channel with no/bad token crash-loops the gateway, so a channel with
-# no token must be left disabled. Zero enabled channels is fine — the agent runs
-# headless (cron + web dashboard only, confirmed 2026-08-06).
+display:
+  personality: __AGENT_PERSONA__
+  theme: midnight
+  streaming: true
+  interim_assistant_messages: true
+  tool_progress: all
+  show_reasoning: false
+  show_cost: false
+
+privacy:
+  redact_pii: true
+
+approvals:
+  mode: manual
+  timeout: 120
+  cron_mode: deny
+  mcp_reload_confirm: true
+  destructive_slash_confirm: true
+
+hooks_auto_accept: false
+
+security:
+  allow_private_urls: false
+  redact_secrets: true
+  tirith_enabled: true
+  tirith_fail_open: false
+
+tool_loop_guardrails:
+  hard_stop_enabled: true
+
+cron:
+  wrap_response: true
+
+kanban:
+  dispatch_in_gateway: true
+  dispatch_interval_seconds: 60
+
+code_execution:
+  mode: project
+  timeout: 300
+  max_tool_calls: 50
+
+sessions:
+  auto_prune: false
+  retention_days: 90
+  vacuum_after_prune: true
+
+session_reset:
+  mode: both
+  idle_minutes: 1440
+  at_hour: 4
+
+group_sessions_per_user: true
+
 platforms:
   slack:
     enabled: __SLACK_ENABLED__
   telegram:
     enabled: __TELEGRAM_ENABLED__
 
-# Auto-accept tool hooks (matches ai-guy-go-to-market's operator posture).
-hooks_auto_accept: true
+platform_toolsets:
+  cli: [hermes-cli]
+  telegram: [hermes-telegram, browser, clarify, code_execution, computer_use, cronjob, delegation, file, kanban, memory, session_search, skills, terminal, todo, vision, web]
+  slack: [hermes-slack, browser, clarify, code_execution, computer_use, cronjob, delegation, file, kanban, memory, session_search, skills, terminal, todo, vision, web]
 
-display:
-  personality: __AGENT_PERSONA__
-
-# Home channels the agent can post to proactively. new-agent.sh removes these
-# two lines if the corresponding values in agent.env are blank.
 TELEGRAM_HOME_CHANNEL: '__TELEGRAM_HOME_CHANNEL__'
 SLACK_HOME_CHANNEL: '__SLACK_HOME_CHANNEL__'
-
-# ── MCP servers (tools) ───────────────────────────────────────────────────────
-# Add per-agent tools here AFTER first boot, or seed them below. NOTE: Hermes stores
-# mcp_servers[].env values as LITERAL strings (no ${ENV} expansion), so anything you
-# put here is a cleartext secret in this file — prefer adding tools via the dashboard
-# or keep this file out of git. Example (commented):
-# mcp_servers:
-#   firecrawl:
-#     command: npx
-#     args: ["-y", "firecrawl-mcp"]
-#     env:
-#       FIRECRAWL_API_KEY: "fc-..."   # <- cleartext; handle carefully
-#     timeout: 120

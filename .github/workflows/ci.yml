@@ -1,0 +1,31 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify self-installing Affiliate Manager
+        run: ./scripts/verify.sh
+
+  reviewed-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Pull the exact reviewed Hermes image
+        run: docker pull nousresearch/hermes-agent:v2026.8.31@sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524
+      - name: Prove the reviewed Hermes version
+        run: |
+          docker run --rm --entrypoint /opt/hermes/.venv/bin/hermes \
+            nousresearch/hermes-agent:v2026.8.31@sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524 \
+            --version
+      - name: Boot the exact Affiliate Manager runtime
+        run: ./tests/smoke_runtime.sh

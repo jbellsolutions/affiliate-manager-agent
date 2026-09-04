@@ -10,18 +10,13 @@
 
 services:
   hermes:
-    # Pinned to the known-good build (2026-05-04) that ai-guy-go-to-market runs in production,
-    # so every clone reproduces the proven setup instead of whatever :latest is today.
-    # ⚠ UPGRADING: newer images switched to an s6-overlay `/init` entrypoint that is
-    # INCOMPATIBLE with the `entrypoint: [/init-chown.sh]` override below (it chains to a
-    # now-deprecated docker/entrypoint.sh and the container won't start CMD → crash loop).
-    # To move to a newer image: bump this digest, DROP the `entrypoint:` override (the new
-    # /init handles bootstrap + CMD), confirm the ui-tui/EACCES + HOME fixes are still
-    # needed, and re-test on a throwaway box before rolling out.
-    image: nousresearch/hermes-agent@sha256:34cdda188b55df3d34df968c63d54ae8cb64206d9865162da275924f1263ede5
+    # Exact reviewed Hermes v0.21.0 multi-platform image. Never replace this with
+    # a floating :latest tag; see docs/UPDATES.md.
+    image: nousresearch/hermes-agent:v2026.8.31@sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524
     container_name: ${AGENT_NAME}
     restart: unless-stopped
-    init: true
+    # The upstream image owns PID 1 through s6-overlay.
+    init: false
     stdin_open: true
     tty: true
     dns: ["8.8.8.8", "8.8.4.4"]
@@ -34,7 +29,7 @@ services:
       FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:?FIREWORKS_API_KEY required (primary)}
       TOGETHER_API_KEY: ${TOGETHER_API_KEY:-}      # fallback (recommended)
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}  # optional extra fallback
-      HERMES_ACCEPT_HOOKS: "1"
+      HERMES_ACCEPT_HOOKS: "0"
       # ── Load-bearing fixes for nousresearch/hermes-agent (do NOT remove) ─────
       # gosu keeps the parent HOME on privilege drop; without this the TUI inherits
       # HOME=/root, can't read it, and the Chat tab renders blank.
@@ -46,6 +41,7 @@ services:
       # ── Channels (provide tokens for the ones you enable in config.yaml) ─────
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
       SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      SLACK_ALLOWED_USERS: ${SLACK_ALLOWED_USERS:-}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       GATEWAY_ALLOW_ALL_USERS: ${GATEWAY_ALLOW_ALL_USERS:-false}
       # ── Cold email add-on (only used if skills/sales/instantly-* is installed) ─
@@ -73,11 +69,11 @@ services:
     ports:
       - "127.0.0.1:${HERMES_PORT:-18789}:9119"
     networks: [agent_net]
-    mem_limit: ${HERMES_MEM_LIMIT:-2g}
-    cpus: "${HERMES_CPUS:-2.0}"
+    mem_limit: ${HERMES_MEM_LIMIT:-5g}
+    cpus: "${HERMES_CPUS:-3.0}"
     security_opt: ["no-new-privileges:true"]
-    # Root pre-entrypoint: chowns /opt/hermes/ui-tui (EACCES fix) + /opt/data, then
-    # chains to the upstream entrypoint's gosu privilege drop.
+    # Root pre-entrypoint heals bind-mount ownership, then chains into the
+    # current upstream s6-compatible dispatcher.
     entrypoint: ["/init-chown.sh"]
     command: ["/bin/bash", "/start-hermes.sh"]
     healthcheck:
@@ -85,7 +81,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 90s
 
   # Obsidian/Notion memory mirror — opt-in (`--profile sync`). Mirrors Hermes
   # session DB, kanban, memories, and skills to the git-backed vault (Obsidian

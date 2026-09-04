@@ -7,4 +7,4 @@ HERMES=/opt/hermes/.venv/bin/hermes
 
 $HERMES dashboard   --host 0.0.0.0   --port 9119   --no-open   --insecure --tui &
 
-exec $HERMES gateway run --accept-hooks
+exec $HERMES gateway run

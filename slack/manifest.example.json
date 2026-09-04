@@ -4,13 +4,13 @@
     "minor_version": 1
   },
   "display_information": {
-    "name": "Hermes",
-    "description": "Your Hermes agent on Slack",
+    "name": "Affiliate Manager",
+    "description": "Your private affiliate-program operations partner",
     "background_color": "#1a1a2e"
   },
   "features": {
     "bot_user": {
-      "display_name": "Hermes",
+      "display_name": "Affiliate Manager",
       "always_online": true
     },
     "slash_commands": [
@@ -76,10 +76,10 @@
       },
       {
         "command": "/approve",
-        "description": "Approve a pending dangerous command",
+        "description": "Approve one pending action for this session",
         "should_escape": false,
         "url": "https://hermes-agent.local/slack/commands",
-        "usage_hint": "[session|always]"
+        "usage_hint": "[session]"
       },
       {
         "command": "/deny",
@@ -162,12 +162,6 @@
         "usage_hint": "[on|off|status]"
       },
       {
-        "command": "/yolo",
-        "description": "Toggle YOLO mode (skip all dangerous command approvals)",
-        "should_escape": false,
-        "url": "https://hermes-agent.local/slack/commands"
-      },
-      {
         "command": "/reasoning",
         "description": "Manage reasoning effort and display",
         "should_escape": false,
@@ -245,12 +239,6 @@
         "should_escape": false,
         "url": "https://hermes-agent.local/slack/commands",
         "usage_hint": "[days]"
-      },
-      {
-        "command": "/update",
-        "description": "Update Hermes Agent to the latest version",
-        "should_escape": false,
-        "url": "https://hermes-agent.local/slack/commands"
       },
       {
         "command": "/debug",

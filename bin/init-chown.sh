@@ -37,4 +37,4 @@ heal() {
 heal /opt/hermes/ui-tui
 heal /opt/data
 
-exec /opt/hermes/docker/entrypoint.sh "$@"
+exec /opt/hermes/docker/entrypoint-dispatch.sh "$@"

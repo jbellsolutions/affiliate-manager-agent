@@ -11,6 +11,17 @@ This agent can coordinate revenue activity, but it should begin with no producti
 5. Test integrations with synthetic or non-sensitive records before using live partner data.
 6. Review logs and pending actions on a recurring schedule. Stop the workflow when unexpected behavior appears.
 7. Remove credentials before sharing logs or asking for support.
+8. Keep Hermes in manual approval mode, deny approvals from cron, and require
+   review for agent-authored skills. The checked defaults are in
+   `hermes/config.template.yaml` and `orgo/setup.sh`.
+9. For Orgo, keep private contracts, partner lists, paid training, exports, and
+   other non-public material under
+   `~/.hermes/affiliate-manager/private-business/`.
+10. If behavior is unexpected, run
+    `./orgo/emergency-stop.sh "reason"`. This records the stop and disables the
+    connected business-app MCP without removing research and drafting access.
+
+The detailed action boundary is versioned in `policies/permissions.json`.
 
 ## Reporting a security issue
 

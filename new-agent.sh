@@ -29,8 +29,15 @@ echo "▸ Provisioning agent '$AGENT_NAME' at $BASE_DIR"
 # Enable only channels that have a token. An ENABLED channel with no/bad token
 # crash-loops the gateway — never enable a channel without its token. Zero
 # enabled channels is fine: the agent runs headless (cron + web dashboard only).
-SLACK_ENABLED=$([ -n "${SLACK_BOT_TOKEN:-}" ] && echo true || echo false)
+if { [ -n "${SLACK_BOT_TOKEN:-}" ] && [ -z "${SLACK_APP_TOKEN:-}" ]; } || \
+   { [ -z "${SLACK_BOT_TOKEN:-}" ] && [ -n "${SLACK_APP_TOKEN:-}" ]; }; then
+  fail "Slack requires both SLACK_BOT_TOKEN and SLACK_APP_TOKEN"
+fi
+SLACK_ENABLED=$([ -n "${SLACK_BOT_TOKEN:-}" ] && [ -n "${SLACK_APP_TOKEN:-}" ] && echo true || echo false)
 TELEGRAM_ENABLED=$([ -n "${TELEGRAM_BOT_TOKEN:-}" ] && echo true || echo false)
+if [ "$SLACK_ENABLED" = true ] && [ -z "${SLACK_ALLOWED_USERS:-}" ]; then
+  fail "SLACK_ALLOWED_USERS must contain the authorized owner's Slack Member ID"
+fi
 if [ "$SLACK_ENABLED" = false ] && [ "$TELEGRAM_ENABLED" = false ]; then
   echo "  · No SLACK_BOT_TOKEN or TELEGRAM_BOT_TOKEN set — launching headless"
   echo "     (cron + web dashboard only). Add a channel token to $CFG + recreate anytime."
@@ -53,6 +60,11 @@ for role_file in SOUL.md AGENTS.md; do
     echo "  · seeded $BASE_DIR/hermes/data/$role_file"
   fi
 done
+
+# Install skills, routines, policy, draft-only tools, and private directories.
+# A manifest refreshes unchanged public files on later runs without overwriting
+# owner-edited copies.
+python3 "$TEMPLATE_DIR/orgo/sync_seed.py" "$TEMPLATE_DIR" "$BASE_DIR/hermes/data"
 
 # .env — the live one wins if it already exists (don't clobber a running agent)
 if [ -f "$BASE_DIR/.env" ]; then
@@ -89,6 +101,7 @@ else
     FALLBACKS="Together → OpenRouter"
   fi
   rm -f "$CONFIG_DST.bak"
+  chmod 600 "$CONFIG_DST"
   echo "  · seeded $CONFIG_DST (Fireworks primary, fallbacks: $FALLBACKS, persona=${AGENT_PERSONA:-technical})"
 fi
 

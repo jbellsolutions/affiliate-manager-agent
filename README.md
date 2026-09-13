@@ -1,5 +1,7 @@
 # Affiliate Manager Agent
 
+> **[Orgo](https://orgo.ai?r=aiguy) partner offer:** Get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
+
 ![Affiliate Manager Agent coordinating a partner network](docs/assets/affiliate-manager-hero.jpg)
 
 Your always-on AI operator for recruiting, activating, supporting, and growing revenue-producing partner relationships.
@@ -56,7 +58,7 @@ entry. [START-HERE.md](START-HERE.md) contains the complete handoff.
 
 ## What to have ready
 
-- An Orgo workspace with capacity for one 8 GB RAM / 4 vCPU computer.
+- An [Orgo](https://orgo.ai?r=aiguy) workspace with capacity for one 8 GB RAM / 4 vCPU computer.
 - One model provider supported by Hermes.
 - Your offer, ideal affiliate, approved terms, approved/prohibited claims, and
   human approver.
@@ -69,7 +71,7 @@ Connections are added only after it produces a correct local response.
 ## What happens during setup
 
 1. The setup agent presents a plain-English readiness and cost briefing.
-2. It inspects Orgo, reuses `affiliate-manager` when appropriate, or asks before
+2. It inspects [Orgo](https://orgo.ai?r=aiguy), reuses `affiliate-manager` when appropriate, or asks before
    creating a billable computer.
 3. It installs the exact reviewed Hermes v0.21.0 release and this repository's
    identity, skills, policy, private folders, and launchers.
@@ -111,7 +113,7 @@ drafts; it contains no automatic-send path. See `agent.example.env` and the
 
 ## What gets installed
 
-- An Orgo-first Hermes v0.21.0 agent pinned to an exact release, commit, Docker
+- An [Orgo](https://orgo.ai?r=aiguy)-first Hermes v0.21.0 agent pinned to an exact release, commit, Docker
   digest, and installer checksum.
 - The Affiliate Manager role and operating guardrails in `hermes/data/`.
 - Current checkpoints, memory, verification-on-stop, secret and PII redaction,
@@ -148,7 +150,7 @@ cd ~/affiliate-manager-agent
 ```
 
 The Docker deployment now uses the same reviewed Hermes v0.21.0 image as the
-Orgo contract. The dashboard remains bound to localhost. For runtime symptoms,
+[Orgo](https://orgo.ai?r=aiguy) contract. The dashboard remains bound to localhost. For runtime symptoms,
 see [Troubleshooting](docs/TROUBLESHOOTING.md).
 
 ## Updates and verification

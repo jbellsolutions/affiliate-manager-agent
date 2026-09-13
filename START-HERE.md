@@ -1,4 +1,6 @@
-# Start Here: Affiliate Manager on Orgo
+# Start Here: Affiliate Manager on [Orgo](https://orgo.ai?r=aiguy)
+
+> **[Orgo](https://orgo.ai?r=aiguy) partner offer:** Get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
 
 Affiliate Manager is a private, always-on operator for building and running an
 affiliate or referral program. A setup agent handles the technical installation
@@ -26,8 +28,8 @@ authorized dashboard or messaging channel.
 
 Required:
 
-- Access to an Orgo workspace and approval to use one 8 GB RAM / 4 vCPU
-  computer. Orgo billing and capacity depend on the account's current plan.
+- Access to an [Orgo](https://orgo.ai?r=aiguy) workspace and approval to use one 8 GB RAM / 4 vCPU
+  computer. [Orgo](https://orgo.ai?r=aiguy) billing and capacity depend on the account's current plan.
 - One model provider supported by Hermes. The setup agent will use Hermes'
   private setup flow and will not place the key in this repository.
 - Five business answers: the offer, ideal affiliate, approved commission and
@@ -46,7 +48,7 @@ You do not need to know the terminal, Docker, Git, or configuration files.
 
 1. Explain the plan, costs, account needs, security boundaries, and approval
    moments before making changes.
-2. Inspect Orgo and reuse the intended computer, or request approval before
+2. Inspect [Orgo](https://orgo.ai?r=aiguy) and reuse the intended computer, or request approval before
    creating a billable one.
 3. Install the exact reviewed Hermes v0.21.0 release and the Affiliate Manager
    profile, skills, policies, private folders, and desktop launchers.
@@ -100,5 +102,5 @@ connected business-app MCP. Research and drafting remain available. Only the
 account holder should run `./orgo/resume-external-writes.sh` after reviewing the
 reason and reconnecting any intentionally disabled tool.
 
-The older Docker/VPS deployment remains available for technical teams, but Orgo
+The older Docker/VPS deployment remains available for technical teams, but [Orgo](https://orgo.ai?r=aiguy)
 is the recommended beginner path.

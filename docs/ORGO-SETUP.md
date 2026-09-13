@@ -1,8 +1,8 @@
-# Beginner setup on Orgo
+# Beginner setup on [Orgo](https://orgo.ai?r=aiguy)
 
 This is the recommended installation path. The person installing it gives the
 GitHub link to a capable setup agent. The setup agent reads the repository,
-explains the prerequisites, operates Orgo, installs the software, and proves the
+explains the prerequisites, operates [Orgo](https://orgo.ai?r=aiguy), installs the software, and proves the
 result. The account holder does not need to use a terminal.
 
 ## Before anything changes
@@ -11,13 +11,13 @@ The setup agent must show a short readiness card containing:
 
 | Item | Why it is needed | Owner action |
 |---|---|---|
-| Orgo computer | Isolated, always-on home for the agent | Approve creation or billing only if a suitable computer does not exist |
+| [Orgo](https://orgo.ai?r=aiguy) computer | Isolated, always-on home for the agent | Approve creation or billing only if a suitable computer does not exist |
 | Model provider | Powers Hermes responses | Sign in or enter a key through a private flow |
 | Private dashboard or channel | Where the owner talks to the agent | Choose dashboard, Telegram, or Slack |
 | Business rules | Prevents invented offers, terms, claims, and approvals | Answer the first-run interview |
 | Optional business tools | CRM, affiliate platform, calendar, inbox, files, or Instantly | Authorize only the tools wanted now |
 
-The setup agent must state that Orgo and model-provider charges depend on the
+The setup agent must state that [Orgo](https://orgo.ai?r=aiguy) and model-provider charges depend on the
 owner's current accounts. It must inspect existing resources before requesting
 permission to create anything billable.
 
@@ -26,10 +26,10 @@ permission to create anything billable.
 1. Read `AGENTS.md`, `START-HERE.md`, `orgo/deployment.json`,
    `policies/permissions.json`, and `SECURITY.md`.
 2. Run `./orgo/verify.sh --static` on the cloned repository.
-3. Inspect the Orgo workspace. Reuse the computer named `affiliate-manager` when
+3. Inspect the [Orgo](https://orgo.ai?r=aiguy) workspace. Reuse the computer named `affiliate-manager` when
    it is the intended machine. Otherwise ask before creating one.
 4. If creation is approved, use `system/hermes-agent@1.0.0` with 8 GB RAM,
-   4 vCPU, 40 GB disk, and 1440 x 900 resolution. Current Orgo guidance lists
+   4 vCPU, 40 GB disk, and 1440 x 900 resolution. Current [Orgo](https://orgo.ai?r=aiguy) guidance lists
    8 GB and 4 cores as the minimum for Hermes.
 5. Clone this repository on the computer and run `./orgo/setup.sh`.
 6. Use `hermes setup` or `hermes setup --portal` for private model

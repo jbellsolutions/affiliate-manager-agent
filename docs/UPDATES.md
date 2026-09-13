@@ -11,8 +11,8 @@ Reviewed on 2026-09-04:
   `sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524`
 - Installer SHA-256
   `85ef536d455e51ab67aa74d79272efd49fe717597dbaadfd3cca179a905f4706`
-- Orgo base `system/hermes-agent@1.0.0`
-- Orgo Hermes sizing baseline: 8 GB RAM and 4 CPU cores
+- [Orgo](https://orgo.ai?r=aiguy) base `system/hermes-agent@1.0.0`
+- [Orgo](https://orgo.ai?r=aiguy) Hermes sizing baseline: 8 GB RAM and 4 CPU cores
 
 Sources:
 
@@ -36,7 +36,7 @@ For a new Hermes release:
 1. Read the official release notes and security changes.
 2. Resolve the signed tag to its exact commit.
 3. capture the multi-platform Docker digest and installer SHA-256.
-4. Test a clean Orgo install, a clean Docker configuration, model setup, a
+4. Test a clean [Orgo](https://orgo.ai?r=aiguy) install, a clean Docker configuration, model setup, a
    private channel, manual approvals, secret redaction, and emergency stop.
 5. Update every pin together and run `./scripts/verify.sh`.
 6. Release to one non-production canary before broad rollout.

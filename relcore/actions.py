@@ -30,8 +30,10 @@ def _contacted_before(store, person_id: str) -> bool:
     if store.con.execute("SELECT 1 FROM interactions WHERE entity_id=? AND direction='out' LIMIT 1", (person_id,)).fetchone():
         return True
     return bool(store.con.execute(
-        "SELECT 1 FROM action_messages m JOIN actions a USING (action_id) WHERE m.entity_id=? AND m.first_touch_flag=1 "
-        "AND m.state IN ('prepared','approved','sent','unknown') AND a.state NOT IN ('rejected','withdrawn','expired') LIMIT 1",
+        "SELECT 1 FROM action_messages m JOIN actions a USING (action_id) WHERE m.entity_id=? AND m.first_touch_flag=1 AND "
+        "((m.state IN ('prepared','approved','sent','unknown') AND a.state NOT IN ('rejected','withdrawn','expired')) "
+        # drafts-only: the human may have sent it and not said so yet, so it counts until it is recorded or withdrawn
+        "OR (m.state='outbox' AND a.state NOT IN ('rejected','withdrawn'))) LIMIT 1",
         (person_id,)).fetchone())
 
 

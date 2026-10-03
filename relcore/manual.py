@@ -61,8 +61,12 @@ def reply_record(store, ref: dict, text: str, channel: str, at: str | None = Non
     found = ids.get("email") if channel == "email" else ids.get("phone") if channel in ("sms", "call") else None
     address = (found[0] if isinstance(found, list) and found else found if isinstance(found, str) else None) or f"manual:{person}"
     when = _when(at)
-    sha = hashlib.sha256(f"{person}|{when}|{text}".encode()).hexdigest()[:12]
+    # without a time, the same text pasted twice on one day is one reply, not two
+    sha = hashlib.sha256(f"{person}|{when if at else clock.day(clock.now())}|{text}".encode()).hexdigest()[:12]
     mid = f"manual-{sha}"
+    seen = store.con.execute("SELECT id, intent FROM inbound WHERE last_msg_id=? AND entity_id=?", (mid, person)).fetchone()
+    if seen:
+        return {"recorded": False, "note": "already recorded", "inbound_id": seen["id"], "intent": seen["intent"]}
     doc = {"provider": "manual", "msg_ids": [mid], "last_msg_id": mid, "channel": channel, "address": address, "at": when,
            "text": text, "floor": intents.classify(text, channel), "person_id": person}
     spool.write(folder, f"in-{re.sub(r'[^0-9]', '', when)}-{sha}.json", doc)
@@ -70,6 +74,7 @@ def reply_record(store, ref: dict, text: str, channel: str, at: str | None = Non
     row = store.con.execute("SELECT id, intent, status, note FROM inbound WHERE last_msg_id=?", (mid,)).fetchone()
     if not row:
         return {"recorded": False, "ingest": out}
+
     return {"recorded": True, "inbound_id": row["id"], "intent": row["intent"], "status": row["status"],
             "move": intents.MOVES[row["intent"]], "note": row["note"]}
 

@@ -41,13 +41,17 @@ reach here. relcore therefore runs drafts only:
 1. `rel_wave_prepare` or `rel_draft_submit` prepares messages; each lands in
    `~/.hermes/affiliate-manager/private-business/outbox/` and in `Reviews/` in the vault.
 2. You send it yourself. Tell the agent it went out and it records it with `rel_sent_record`: the card shows the
-   message and the person counts as contacted for good, so nobody gets a second first touch.
+   message and the person counts as contacted for good. A first touch waiting in the outbox already counts, so no
+   later wave picks that person again; if you decide not to send it, have the agent withdraw it
+   (`rel_action_withdraw`).
 3. Paste the partner's reply to the agent. `rel_reply_record` reads it through the keyword floor (opt-out, HELP,
    wrong number, identity question, complaint, then the positive intents), applies opt-outs and wrong numbers at
    once, opens loops (a confirmed time, a calendar hold), records engagement and tells the agent which reply move
    is allowed.
 
-relcore has no send, approve or release tool, and the server refuses to register one.
+relcore has no send, approve or release tool, and the server refuses to register one. In this mode the sends and
+replies on the cards are what you told the agent, not what a provider reported, so reply and engagement rates rest
+on that record; conversions still come only from your affiliate platform or CRM import.
 
 ## Set up and import
 

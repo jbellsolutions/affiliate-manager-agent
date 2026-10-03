@@ -43,3 +43,10 @@ For a new Hermes release:
 
 Recipients receive repository updates only when the reviewed pins and tests move
 together. The installer never silently follows an unreviewed `latest` build.
+
+## Relationship cards on an existing install
+
+Pull the update and run `./orgo/setup.sh` again: step 5 creates the vault and registers the relcore server. The
+installer never overwrites an edited `~/.hermes/AGENTS.md`, so add the two relationship rules from `files/AGENTS.md`
+(call `rel_context` before every draft; record sends and replies with `rel_sent_record` and `rel_reply_record`) to
+your copy by hand. The `affiliate-relationships` skill installs with the other skills.

@@ -29,3 +29,5 @@ jobs:
             --version
       - name: Boot the exact Affiliate Manager runtime
         run: ./tests/smoke_runtime.sh
+      - name: Relationship cards in the exact runtime
+        run: ./tests/smoke_relationship.sh

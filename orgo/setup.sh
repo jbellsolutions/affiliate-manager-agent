@@ -23,7 +23,7 @@ say "Affiliate Manager for Orgo"
 echo "This installs the agent profile and safe operating defaults."
 echo "Private account connections stay on this computer and never enter GitHub."
 
-say "1 of 5 — Checking the computer"
+say "1 of 6 — Checking the computer"
 if ! command -v git >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1 || ! command -v python3 >/dev/null 2>&1; then
   "${ELEVATE[@]}" apt-get update -qq
   "${ELEVATE[@]}" apt-get install -y -qq ca-certificates curl git python3
@@ -37,7 +37,7 @@ for candidate in /opt/hermes /usr/local/lib/hermes-agent "$HERMES_HOME/hermes-ag
   fi
 done
 if [ "$installed_commit" != "$HERMES_COMMIT" ]; then
-  say "2 of 5 — Installing the reviewed Hermes v0.21.0 release"
+  say "2 of 6 — Installing the reviewed Hermes v0.21.0 release"
   installer="$(mktemp)"
   cleanup() { rm -f -- "${installer:-}"; }
   trap cleanup EXIT
@@ -48,16 +48,16 @@ if [ "$installed_commit" != "$HERMES_COMMIT" ]; then
   cleanup
   trap - EXIT
 else
-  say "2 of 5 — The reviewed Hermes release is already installed"
+  say "2 of 6 — The reviewed Hermes release is already installed"
 fi
 command -v hermes >/dev/null 2>&1 || fail "Hermes did not install correctly"
 
-say "3 of 5 — Installing the Affiliate Manager profile and skills"
+say "3 of 6 — Installing the Affiliate Manager profile and skills"
 python3 "$REPO_DIR/orgo/sync_seed.py" "$REPO_DIR" "$HERMES_HOME"
 chmod 700 "$HERMES_HOME" "$HERMES_HOME/affiliate-manager/state" "$HERMES_HOME/affiliate-manager/private-business"
 chmod 600 "$HERMES_HOME/SOUL.md" "$HERMES_HOME/AGENTS.md" 2>/dev/null || true
 
-say "4 of 5 — Applying current safety, memory, and reliability settings"
+say "4 of 6 — Applying current safety, memory, and reliability settings"
 for setting in \
   'toolsets=["hermes-cli"]' \
   'platform_toolsets.cli=["hermes-cli"]' \
@@ -106,12 +106,28 @@ for setting in \
   hermes config set "$key" "$value" >/dev/null
 done
 
+say "5 of 6 — Relationship cards: one Obsidian card for every person, partner and partnership"
+# --- relationship cards: begin (tests/smoke_relationship.sh runs this block as is)
+"$REPO_DIR/orgo/relationship.sh" init >/dev/null
+# The relcore MCP server holds no credential and has no send tool. With no sender on this computer it runs
+# drafts only: prepared messages go to the outbox, and the agent records what you sent and what partners replied.
+hermes config set mcp_servers.relcore.command python3 >/dev/null
+hermes config set mcp_servers.relcore.args '["-m","relcore.mcp_server","--mode","plugin"]' >/dev/null
+while IFS='=' read -r key value; do
+  hermes config set "mcp_servers.relcore.env.$key" "$value" >/dev/null
+done < <("$REPO_DIR/orgo/relationship.sh" env)
+hermes config set mcp_servers.relcore.trust full >/dev/null
+hermes config set mcp_servers.relcore.timeout 60 >/dev/null
+hermes config set mcp_servers.relcore.enabled true >/dev/null
+chmod 700 "$HERMES_HOME/affiliate-manager/private-business/relationship"
+# --- relationship cards: end
+
 mkdir -p "$HOME/Desktop"
 install -m 0755 "$REPO_DIR/orgo/AffiliateManager.desktop" "$HOME/Desktop/AffiliateManager.desktop"
 install -m 0755 "$REPO_DIR/orgo/AffiliateManagerSetup.desktop" "$HOME/Desktop/AffiliateManagerSetup.desktop"
-chmod +x "$REPO_DIR/orgo/connect.sh" "$REPO_DIR/orgo/emergency-stop.sh" "$REPO_DIR/orgo/resume-external-writes.sh" "$REPO_DIR/orgo/verify.sh"
+chmod +x "$REPO_DIR/orgo/connect.sh" "$REPO_DIR/orgo/emergency-stop.sh" "$REPO_DIR/orgo/resume-external-writes.sh" "$REPO_DIR/orgo/verify.sh" "$REPO_DIR/orgo/relationship.sh"
 
-say "5 of 5 — Verifying the installation"
+say "6 of 6 — Verifying the installation"
 "$REPO_DIR/orgo/verify.sh" --allow-unconnected
 
 cat <<'TEXT'
@@ -123,6 +139,9 @@ Next:
   ./orgo/connect.sh        Connect a channel or approved business app
   hermes                   Open the agent in this terminal
   ./orgo/emergency-stop.sh "reason"  Freeze connected external-write tools
+  ./orgo/relationship.sh import plan csv <folder> --client "<business>"
+                           Preview the relationship cards from a CRM export (apply writes them)
+  Open ~/AffiliateVault in Obsidian to see every relationship card
 
 The same launch and connection choices are available from the desktop icons.
 TEXT

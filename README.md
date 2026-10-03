@@ -23,6 +23,14 @@ It can help you:
 - Monitor program health and prepare weekly performance reports.
 - Surface stalled partners, attribution questions, and payout exceptions.
 
+## Relationship cards for every partner
+
+Every person, partner and partnership gets a living card in an Obsidian vault: how to reach them, what they told us
+(each fact with its source), what is still open, the last conversation quoted and what happens next. The agent
+reads that context graph before every draft, so no partner is asked the same thing twice and every follow-up starts
+where the last one ended. On Orgo the cards run drafts only: you send, and the agent records what went out and what
+partners said back. See [docs/RELATIONSHIP-CARDS.md](docs/RELATIONSHIP-CARDS.md).
+
 ## The operating cycle
 
 ```text
@@ -119,6 +127,7 @@ drafts; it contains no automatic-send path. See `agent.example.env` and the
 - Current checkpoints, memory, verification-on-stop, secret and PII redaction,
   manual approvals, cron-deny, loop-stop, and reviewed-skill settings.
 - Persistent operational memory and a git-backed Obsidian vault.
+- Relationship cards and a context graph for every partner (`relcore`, drafts only on Orgo).
 - Optional Slack and Telegram channels.
 - A private connection menu for supported CRM, affiliate, calendar, inbox, file,
   and Instantly workflows.

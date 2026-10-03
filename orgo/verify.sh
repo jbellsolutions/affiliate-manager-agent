@@ -18,7 +18,7 @@ EXPECTED_COMMIT="29112bef099274229cadff79cdff7bf7b99c4b77"
 python3 -m json.tool "$REPO_DIR/orgo/deployment.json" >/dev/null
 python3 -m json.tool "$REPO_DIR/policies/permissions.json" >/dev/null
 find "$REPO_DIR/orgo" -type f -name '*.sh' -print0 | xargs -0 bash -n
-python3 -m compileall -q "$REPO_DIR/orgo" "$REPO_DIR/scripts" "$REPO_DIR/tests"
+python3 -m compileall -q "$REPO_DIR/orgo" "$REPO_DIR/scripts" "$REPO_DIR/tests" "$REPO_DIR/relcore"
 python3 -m unittest discover -s "$REPO_DIR/tests" -p 'test_*.py' -v
 "$REPO_DIR/tests/smoke_deployment.sh"
 
@@ -56,6 +56,17 @@ hermes config get privacy.redact_pii 2>/dev/null | grep -qi true
 hermes config get security.redact_secrets 2>/dev/null | grep -qi true
 hermes config get security.tirith_fail_open 2>/dev/null | grep -qi false
 hermes config get tool_loop_guardrails.hard_stop_enabled 2>/dev/null | grep -qi true
+
+hermes config get mcp_servers.relcore.command 2>/dev/null | grep -q python3 || {
+  echo "The relationship cards server (relcore) is not registered with Hermes. Run ./orgo/setup.sh again." >&2
+  exit 1
+}
+vault="$("$REPO_DIR/orgo/relationship.sh" env | sed -n 's/^RELCORE_VAULT=//p')"
+[ -d "$vault/People" ] && [ -d "$vault/Partnerships" ] || {
+  echo "The relationship vault is missing at $vault. Run ./orgo/setup.sh again." >&2
+  exit 1
+}
+"$REPO_DIR/orgo/relationship.sh" doctor >/dev/null
 
 if [ "$ALLOW_UNCONNECTED" = false ]; then
   status="$(hermes status 2>/dev/null || true)"

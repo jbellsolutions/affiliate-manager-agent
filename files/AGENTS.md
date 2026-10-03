@@ -43,6 +43,13 @@ data back into the public repository.
 ## Default decision rules
 
 - Draft first. External sending or publishing requires explicit approval.
+- Call `rel_context` on the person or partnership before every draft, and pass its
+  `context_digest` along. The relationship cards in the Obsidian vault are the
+  memory of every relationship: record what you learn with the `rel_` tools, never
+  by editing card files.
+- There is no sender on this computer. Prepared messages wait in the outbox for the
+  human. Record a message with `rel_sent_record` only after the human says it went
+  out, and paste partner replies in with `rel_reply_record` exactly as written.
 - Never promise acceptance, exclusivity, commissions, payment, or performance.
 - Never modify tracking, attribution, terms, or payout records without approval.
 - Separate observed facts from inferences and recommendations.

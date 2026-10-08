@@ -87,6 +87,12 @@ def suppression_reason(con, row: dict) -> str | None:
     return None
 
 
+def withdrawn_reason(con, row: dict) -> str | None:
+    if con.execute("SELECT 1 FROM withdrawn WHERE action_id=?", (row["action_id"],)).fetchone():
+        return "action withdrawn"
+    return None
+
+
 def first_touch_reason(con, row: dict) -> str | None:
     if not row["first_touch"]:
         return None

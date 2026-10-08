@@ -46,7 +46,7 @@ def read(folder, system: str = "crm") -> Batch:
             contacts.append((key.strip(), role.strip()))
         b.partnerships.append({"partner_key": r["partner_crm_id"], "type_id": r["type_id"], "contacts": contacts,
                                **{k: r.get(k) for k in ("tier", "joined", "conversions", "last_conversion_at", "link", "code",
-                                                         "platform_id", "status")}})
+                                                         "platform_id", "status", "crm_opportunity_id", "crm_contact_id")}})
     b.relationships = [{"from": r["from_crm_id"], "type": r["type"], "to": r["to_crm_id"], "note": r.get("note")}
                        for r in _rows(d / "relationships.csv")]
     b.producers = [r["crm_id"] for r in _rows(d / "producers.csv")]

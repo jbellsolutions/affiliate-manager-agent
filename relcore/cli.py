@@ -13,6 +13,7 @@
     python3 -m relcore scorecard [--days 30]   the relationship scorecard (also writes a Reports/ note)
     python3 -m relcore sim [--seed N]          the simulation: personas with a hidden truth through the whole loop, in a throwaway root
     python3 -m relcore showcase --out <dir>    the sample program after one full loop, as a vault to open in Obsidian
+    python3 -m relcore crm <status|prepare>    CRM write-back: what the pipeline is behind on, and prepare the moves for approval
     python3 -m relcore ingest               read decisions, send results and partner replies from the spool (cron, 5 min)
     python3 -m relcore backup <dir>         consistent copy of rel.sqlite3 (sqlite backup API)
 """
@@ -131,6 +132,9 @@ def main(argv=None) -> int:
     elif a.command == "sim":
         from .sim import main as sim_main  # a throwaway root of its own; never touches this install
         return sim_main(a.rest)
+    elif a.command == "crm":
+        from .crm import main as crm_main
+        return crm_main(a.rest)
     elif a.command == "showcase":
         from .showcase import main as showcase_main  # builds its own root under --out; never touches this install
         return showcase_main(a.rest)

@@ -62,7 +62,16 @@ class Service:
             problems.append("expired before approval")
         sender = self.sender()
         seen = set()
+        from .. import crm
+        crm_map = crm.settings(self.paths)
         for m in bundle.get("messages", []):
+            if m["channel"] == "crm":  # a CRM write: checked against the root-owned map, never against copy rules
+                problems += crm.validate_message(m, crm_map)
+                key = ("crm", (m.get("crm") or {}).get("op"), m.get("address"))
+                if key in seen:
+                    problems.append(f"{m['n']}: duplicate CRM write")
+                seen.add(key)
+                continue
             if m["channel"] not in ("email", "sms"):
                 problems.append(f"{m['n']}: {m['channel']} cannot be sent")
             if not m.get("consent_basis"):
@@ -176,6 +185,8 @@ class Service:
                 continue
             m = dict(m)
             if m["n"] in edits:
+                if m["channel"] == "crm":
+                    raise Refused(f"{m['n']} is a CRM write: approve it, exclude it or reject it")
                 m["body"] = edits[m["n"]].strip()
                 check = copy.lint(m["channel"], m["body"], subject=m.get("subject", ""), first_touch=bool(m.get("first_touch")), profile=m.get("lint_profile"),
                                   sender=sender)
@@ -216,6 +227,8 @@ class Service:
         m = next((m for m in bundle["messages"] if m["n"] == int(n)), None)
         if not m:
             raise Refused(f"no message {n}")
+        if m["channel"] == "crm":
+            raise Refused(f"{n} is a CRM write: approve it, exclude it or reject it")
         check = copy.lint(m["channel"], text, subject=m.get("subject", ""), first_touch=bool(m.get("first_touch")), profile=m.get("lint_profile"), sender=self.sender())
         if not check["ok"]:
             raise Refused(f"edit breaks the copy rules: {'; '.join(check['errors'])}")

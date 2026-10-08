@@ -61,6 +61,7 @@ Three kinds of cards, one graph, one rule.
 - [x] **Reply triage with an intent floor**: opt-outs, wrong numbers and identity questions are handled first, before any model reads the text
 - [x] **Calls turned into commitments**: who promised what, by when, as open loops on the partnership
 - [x] **A partner plan** the partner actually receives: the offers that fit their people, the moments they need it, a message they can copy, and what you will send them
+- [x] **CRM write-back**: your CRM pipeline moves when the relationship does, and every new conversion is logged on the CRM contact, after your approval
 - [x] **A scorecard** built from production on record, with lift measured against the holdout
 - [x] **Employee portfolio cards**: each AI employee sees its own partnerships, loops due and next asks
 - [x] **No paid enrichment**: the agent researches partners itself with its own browser and computer
@@ -70,7 +71,9 @@ Three kinds of cards, one graph, one rule.
 ```text
 Import  ->  Cards + graph  ->  Context brief  ->  Wave + holdout  ->  Owner review
                                                                         |
-Scorecard  <-  Partner plan  <-  Calls  <-  Replies triaged  <-  Approved send
+Partner plan  <-  Calls  <-  Replies triaged  <-  Approved send  <------+
+     |
+Conversion on record  ->  CRM pipeline moves (approved)  ->  Scorecard
 ```
 
 ### 1. Import what you already have
@@ -149,7 +152,15 @@ Scorecard  <-  Partner plan  <-  Calls  <-  Replies triaged  <-  Approved send
 
 ![A partner plan note: what the partner gets, and the internal promises and measure](docs/assets/relationship/partner-plan.png)
 
-### 10. The scorecard judges the program by production
+### 10. The CRM pipeline keeps up
+
+- [x] Every forward move on the cards (contacted, replied, engaged, call booked, plan sent) and every conversion the partner platform records becomes a CRM update
+- [x] Stages only move forward, and only to stages you mapped
+- [x] Each new conversion is logged as a note on the CRM contact
+- [x] On Orgo the update waits in the outbox: you make the change in your CRM, and `rel_sent_record` puts the confirmed stage on the card
+- [x] On the True Revenue Partner droplet the sender writes it to the CRM after a signed approval
+
+### 11. The scorecard judges the program by production
 
 - [x] Reachable, consented partnerships as the denominator
 - [x] Replies, positive replies, our median time to reply, the funnel from engaged to repeat
@@ -169,6 +180,7 @@ relcore, the engine behind the cards, ships in two products: **True Revenue Part
 | Email and SMS | sent after a signed owner approval, by a separate sender | drafts: you send, the agent records | drafts: you send, the agent records |
 | Replies | read by the sender's inbox | pasted by you, triaged the same way | pasted by you, triaged the same way |
 | LinkedIn and DMs | drafts only | drafts only | drafts only |
+| CRM write-back | written by the sender after a signed approval | in the outbox: you update the CRM, the agent records it | in the outbox: you update the CRM, the agent records it |
 | Calls, plans, scorecard | yes | yes | yes |
 
 ## Partner types: the whole map
@@ -198,6 +210,7 @@ Every partnership is typed, and every type carries a playbook: what the partner 
 - [x] Send a second first touch to the same person or the same address
 - [x] Store health details, card numbers, ID numbers or the other never-store categories, on any path
 - [x] Treat a partner's words as instructions
+- [x] Write to your CRM without your approval, or move a pipeline stage backward
 - [x] Set or change terms, payouts or commissions. Terms are written by the owner only
 - [x] Buy data. There is no paid enrichment, by rule
 - [x] Keep going after the kill switch. One command stops every external write
@@ -206,7 +219,7 @@ Every partnership is typed, and every type carries a playbook: what the partner 
 
 Every rule above is a test. These numbers prove the rules hold. They are not a forecast of your results.
 
-- [x] relcore is built and tested in True Revenue Partner: 152 unit tests, a smoke test in the pinned Hermes image, and the simulation below
+- [x] relcore is built and tested in True Revenue Partner: 162 unit tests, a smoke test in the pinned Hermes image, and the simulation below
 - [x] Here, `tests/test_relationship_cards.py` and `tests/smoke_relationship.sh` prove the Orgo install: the sample imports into cards, the MCP server is drafts-only, and no tool can approve, send or sign
 - [x] **A simulation with hidden-truth personas**: 40 synthetic partners over 9 simulated days, two seeds, through prepare, approval, the sender's checks, the inbox and replies, with an unknown outcome and a rate-limit error injected. Both seeds pass all 18 checks, including:
 

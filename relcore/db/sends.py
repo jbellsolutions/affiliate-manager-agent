@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS outbox (
   state TEXT NOT NULL CHECK (state IN ('queued','blocked','sending','sent','failed','unknown','skipped','expired')),
   provider TEXT, provider_msg_id TEXT, reason TEXT, attempts INTEGER NOT NULL DEFAULT 0, next_try_at TEXT,
   updated_at TEXT NOT NULL, UNIQUE (action_id, n));
+CREATE TABLE IF NOT EXISTS outbox_crm (action_id TEXT NOT NULL, n INTEGER NOT NULL, payload TEXT NOT NULL, PRIMARY KEY (action_id, n));
 CREATE TABLE IF NOT EXISTS first_touch (key TEXT PRIMARY KEY, row_id INTEGER NOT NULL, at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS touches (id INTEGER PRIMARY KEY, person_key TEXT NOT NULL, address TEXT NOT NULL, channel TEXT,
   at TEXT NOT NULL, row_id INTEGER, source TEXT NOT NULL DEFAULT 'relsend');

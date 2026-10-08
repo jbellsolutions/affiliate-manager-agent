@@ -146,6 +146,8 @@ def _write(store, bundle: dict, selection: dict, anomalies: list) -> dict:
     aid = bundle["action_id"]
     with tx(store.con):
         for m in bundle["messages"]:  # belt and braces: no person or partnership in two pending actions
+            if m["channel"] == "crm":  # a CRM write is not a conversation: it never blocks one
+                continue
             for eid in (m["person_id"], m["partnership_id"]):
                 held_by = store.con.execute("SELECT action_id FROM reservations WHERE entity_id=? AND expires_at >= ?",
                                             (eid, clock.iso())).fetchone() if eid else None
@@ -160,15 +162,16 @@ def _write(store, bundle: dict, selection: dict, anomalies: list) -> dict:
             store.con.execute(
                 "INSERT INTO action_messages (action_id, n, entity_id, partnership_id, channel, address, subject, body, body_hash, "
                 "hook, template, arm, reply_to, context_digest, state, first_touch_flag) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (aid, m["n"], m["person_id"], m["partnership_id"], m["channel"], m["address"], m["subject"], m["body"],
+                (aid, m["n"], m["person_id"] or m["partnership_id"], m["partnership_id"], m["channel"], m["address"], m["subject"], m["body"],
                  canonical.payload_hash({"action_id": aid, "kind": "msg", "expires_at": "", "messages": [m]})[:16],
                  m.get("hook"), m.get("template"), m.get("arm"), m.get("reply_to"), m.get("context_digest"), "prepared",
                  int(m["first_touch"])))
-            for eid in (m["person_id"], m["partnership_id"]):
+            for eid in (m["person_id"], m["partnership_id"]) if m["channel"] != "crm" else ():
                 if eid:
                     store.con.execute("INSERT OR REPLACE INTO reservations VALUES (?,?,?)", (eid, aid, bundle["expires_at"]))
             if m["partnership_id"]:
-                store._timeline(m["partnership_id"], f"Prepared {m['channel']} {m['n']} in {aid} (waiting for approval)", f"prep:{aid}:{m['n']}")
+                what = "CRM write" if m["channel"] == "crm" else m["channel"]
+                store._timeline(m["partnership_id"], f"Prepared {what} {m['n']} in {aid} (waiting for approval)", f"prep:{aid}:{m['n']}")
         store._audit("action_prepared", aid, {"messages": len(bundle["messages"]), "kind": bundle["kind"]},
                      actor=f"agent:{bundle['employee']}")
     if store.paths.spool:
@@ -326,7 +329,9 @@ def write_review(store, bundle: dict) -> str:
     lines = ["---", "type: review", f"action: {bundle['action_id']}", f"kind: {bundle['kind']}", f"employee: {bundle['employee'] or 'orchestrator'}",
              f"expires: {bundle['expires_at']}", "tags:", "  - trp/review", "---", f"# Review {bundle['action_id']}", "",
              f"Prepared by {bundle['employee'] or 'the orchestrator'} for {bundle['voice']['name'] if bundle.get('voice') else 'the owner'} to approve. "
-             "Approve, approve except, edit or reject in the approvals channel. Nothing is sent until then.", "",
+             + ("Approve, approve except or reject in the approvals channel. Nothing is written to the CRM until then."
+                if bundle["kind"] == "crm_update" else
+                "Approve, approve except, edit or reject in the approvals channel. Nothing is sent until then."), "",
              "## Anomalies", *([f"- {a}" for a in bundle["anomalies"]] or ["- none"]), "",
              "## Selection", f"- rule: {sel['rule']}", f"- picked: {sel['picked']}", f"- held out: {sel['held_out']}"]
     lines += [f"- skipped, {k}: {v}" for k, v in sel.get("skipped", {}).items()]
@@ -334,8 +339,10 @@ def write_review(store, bundle: dict) -> str:
     for m in msgs:
         groups.setdefault((m.get("template"), m.get("hook")), []).append(m)
     lines += ["", "## Messages"]
-    for (template, hook), items in sorted(groups.items(), key=lambda kv: str(kv[0])):
-        lines += ["", f"### {template} · hook {hook} · {len(items)}"]
+    order = (lambda kv: min(m["n"] for m in kv[1])) if bundle["kind"] == "crm_update" else (lambda kv: str(kv[0]))
+    for (template, hook), items in sorted(groups.items(), key=order):
+        head = {"crm-stage": "CRM pipeline stage", "crm-note": "CRM note"}.get(template) or f"{template} · hook {hook}"
+        lines += ["", f"### {head} · {len(items)}"]
         for m in items:
             tags = [m["channel"], m["segment"], m.get("arm") and f"arm {m['arm']}"]
             lines += ["", f"**{m['n']}. {m['recipient']}** · " + " · ".join(t for t in tags if t)]
@@ -350,7 +357,8 @@ def write_review(store, bundle: dict) -> str:
 def _outbox(store, bundle: dict) -> None:
     out = store.paths.home.parent / "outbox"
     out.mkdir(parents=True, exist_ok=True)
-    lines = [f"# {bundle['action_id']} ({bundle['kind']})", "", "No sender on this install. Copy each message, send it yourself, "
+    what = ("Make each change in your CRM yourself" if bundle["kind"] == "crm_update" else "Copy each message, send it yourself")
+    lines = [f"# {bundle['action_id']} ({bundle['kind']})", "", f"No sender on this install. {what}, "
              f"then record it with rel_sent_record (action_id {bundle['action_id']}, n) so the card shows it went out.", ""]
     for m in bundle["messages"]:
         lines += [f"## {m['n']}. {m['recipient']} · {m['channel']} · {m['address']}", *(["Subject: " + m["subject"]] if m["subject"] else []),

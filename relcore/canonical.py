@@ -2,7 +2,7 @@
 
 payload_hash(bundle) covers, per message: n, channel, the normalized address, subject and body (NFC), the person
 and partnership ids, the first-touch flag, the consent basis and reply_to; plus the action id, kind, employee,
-voice and the bundle's own expiry. Nobody trusts a hash field inside a bundle: every role recomputes it.
+voice and the bundle's own expiry. A CRM write also signs its operation, record ids and stage. Nobody trusts a hash field inside a bundle: every role recomputes it.
 """
 from __future__ import annotations
 
@@ -45,6 +45,8 @@ def message_core(m: dict) -> dict:
     core["address"] = address_norm(m["channel"], m["address"])
     core["subject"] = core["subject"] or ""
     core["first_touch"] = bool(core["first_touch"])
+    if m["channel"] == "crm":  # the write itself is signed: no stage or record can change after approval
+        core["crm"] = m.get("crm")
     if m.get("lint_profile") not in (None, "", "standard"):  # signed too, so nobody can relax the rules after approval
         core["lint_profile"] = m["lint_profile"]
     return core

@@ -351,7 +351,7 @@ def validate(schema: dict, args: dict) -> None:
 def _extra_tools() -> list[dict]:
     """Later milestones register their tools here (drafting, prepare, calls, plan, scorecard)."""
     out = []
-    for mod in ("drafting", "actions", "replies", "calls", "plan", "scorecard", "registers", "manual"):
+    for mod in ("drafting", "actions", "replies", "calls", "plan", "scorecard", "registers", "manual", "crm"):
         try:
             module = __import__(f"relcore.{mod}", fromlist=["MCP_TOOLS"])
         except ImportError:

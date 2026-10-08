@@ -53,6 +53,15 @@ relcore has no send, approve or release tool, and the server refuses to register
 replies on the cards are what you told the agent, not what a provider reported, so reply and engagement rates rest
 on that record; conversions still come only from your affiliate platform or CRM import.
 
+## CRM updates
+
+When a partnership moves forward on the cards (contacted, replied, engaged, call booked, plan sent) or the affiliate
+platform records a conversion, `rel_crm_prepare` prepares the CRM update: a pipeline stage move, forward only, and a
+note on the CRM contact for each new conversion. It needs a pipeline map (`crm.json` in the relcore config folder,
+shaped like the True Revenue Partner sample) and CRM ids on each partnership (`crm_opportunity_id` and
+`crm_contact_id` import columns). On Orgo the update waits in the outbox: make the change in your CRM, then record it
+with `rel_sent_record` and the card shows the CRM stage. The agent never writes to the CRM itself.
+
 ## Set up and import
 
 `./orgo/setup.sh` creates the vault and registers the relcore MCP server with Hermes (step 5). Then import your

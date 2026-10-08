@@ -2,6 +2,8 @@
 
   positive (as relsend):  python3 -m relcore.contracts positive <email|sms> --to <owner's own test address> --yes
       sends exactly one message through the live adapter to the owner's own address and records it
+                          python3 -m relcore.contracts positive crm --to <a test opportunity id> --yes
+      reads that opportunity and writes its own current stage back, which proves write access and changes nothing
   negative (as trp):      python3 -m relcore.contracts negative <email|sms>
       as the agent's user: the approval key, relsend.env and spool/approved must be unreadable or unwritable, and the
       agent's own credentials must fail to send (Composio send slug, GHL conversations endpoint)
@@ -36,6 +38,13 @@ def positive(channel: str, to: str) -> dict:
     from ..sender.worker import Worker
     w = Worker()
     provider = provider_for(channel, True, w.env, w.con)  # live adapter regardless of RELSEND_LIVE_CHANNELS
+    if channel == "crm":
+        try:
+            out = {"ok": True, "provider": provider.name, **provider.check(to)}
+        except Exception as err:  # noqa: BLE001 - a contract reports every failure
+            out = {"ok": False, "error": str(err), "to": to}
+        _record(channel, "positive", out["ok"], out)
+        return out
     body = "Contract check from True Revenue Partner. If you see this, the channel works. No reply needed."
     row = {"row_id": 0, "channel": channel, "address": to, "subject": "contract check",
            "final_body": final_text(channel, body, w.sender, first_in_thread=True)}
@@ -98,6 +107,10 @@ def negative(channel: str, env_file: Path | None = None, network: bool = True) -
         http_must_fail("agent GHL token sends sms", "POST", "https://services.leadconnectorhq.com/conversations/messages",
                        headers={"Authorization": f"Bearer {env['RELCORE_GHL_READ_TOKEN']}", "Version": "2021-04-15"},
                        body={"type": "SMS", "contactId": "contract-probe", "message": "probe"})
+    if channel == "crm" and env.get("RELCORE_GHL_READ_TOKEN"):
+        http_must_fail("agent GHL token moves a pipeline stage", "PUT", "https://services.leadconnectorhq.com/opportunities/contract-probe",
+                       headers={"Authorization": f"Bearer {env['RELCORE_GHL_READ_TOKEN']}", "Version": "2021-07-28"},
+                       body={"pipelineStageId": "contract-probe"})
     ok = all(v.startswith("failed as required") for v in probes.values())
     return {"ok": ok, "channel": channel, "user": os.environ.get("USER"), "probes": probes, "at": clock.iso()}
 

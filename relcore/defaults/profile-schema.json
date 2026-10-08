@@ -302,6 +302,40 @@
       "sources": [
         "record"
       ]
+    },
+    "crm_opportunity": {
+      "entity": "partnership",
+      "section": "Record",
+      "multi": false,
+      "sources": [
+        "record",
+        "owner"
+      ]
+    },
+    "crm_contact": {
+      "entity": "partnership",
+      "section": "Record",
+      "multi": false,
+      "sources": [
+        "record",
+        "owner"
+      ]
+    },
+    "crm_stage": {
+      "entity": "partnership",
+      "section": "Record",
+      "multi": false,
+      "sources": [
+        "record"
+      ]
+    },
+    "crm_conversions": {
+      "entity": "partnership",
+      "section": "Record",
+      "multi": false,
+      "sources": [
+        "record"
+      ]
     }
   },
   "not_from_model": [

@@ -6,6 +6,10 @@
 Intake verifies every approved file: HMAC in constant time, the payload hash recomputed over the final bundle,
 the approver against root owners.json, the decision, the approval's expiry, and that neither the approval id nor
 the action was seen before. Then each message is checked again right before it goes out.
+
+A CRM write (channel crm) takes the same signed path and the same kill switch, HALT, expiry and withdrawal checks.
+It is checked against the root-owned crm.json instead of the person checks (consent, caps, windows, first touch),
+because it writes your own record and contacts nobody.
 """
 from __future__ import annotations
 
@@ -15,7 +19,7 @@ import os
 import time
 from datetime import timedelta
 
-from .. import canonical, clock, config, copy, spool
+from .. import canonical, clock, config, copy, crm, spool
 from ..adapters import SendError, provider_for
 from ..compose import final_text
 from ..db import connect, tx
@@ -131,11 +135,18 @@ class Worker:
                 if a["decision"] != "approved":
                     out["rejected"] += 1
                     continue
+                crm_map = crm.settings(self.paths)
                 for m in sorted(doc["bundle"]["messages"], key=lambda m: m["n"]):
                     address = canonical.address_norm(m["channel"], m["address"])
                     text = final_text(m["channel"], m["body"], self.sender, first_in_thread=bool(m.get("first_touch")))
-                    lint = copy.lint(m["channel"], m["body"], subject=m.get("subject", ""), first_touch=bool(m.get("first_touch")), profile=m.get("lint_profile"),
-                                     sender=self.sender)
+                    if m["channel"] == "crm":
+                        errors = crm.validate_message(m, crm_map)
+                        lint = {"ok": not errors, "errors": errors}
+                        self.con.execute("INSERT OR REPLACE INTO outbox_crm VALUES (?,?,?)",
+                                         (a["action_id"], m["n"], json.dumps(m.get("crm") or {}, sort_keys=True)))
+                    else:
+                        lint = copy.lint(m["channel"], m["body"], subject=m.get("subject", ""), first_touch=bool(m.get("first_touch")), profile=m.get("lint_profile"),
+                                         sender=self.sender)
                     state, reason = ("queued", None) if lint["ok"] else ("blocked", "; ".join(lint["errors"]))
                     self.con.execute(
                         "INSERT INTO outbox (action_id, n, person_id, partnership_id, channel, address, subject, body, final_body, "
@@ -187,6 +198,10 @@ class Worker:
         self.con.execute(f"UPDATE outbox SET state=?, updated_at=?{', ' + sets if sets else ''} WHERE row_id=?",
                          (state, clock.iso(), *kw.values(), row_id))
 
+    def _crm_payload(self, row: dict) -> dict:
+        r = self.con.execute("SELECT payload FROM outbox_crm WHERE action_id=? AND n=?", (row["action_id"], row["n"])).fetchone()
+        return json.loads(r["payload"]) if r else {}
+
     def drain(self, limit: int | None = None) -> dict:
         out = {"sent": 0, "skipped": 0, "failed": 0, "deferred": 0, "unknown": 0, "halted": None}
         rows = [dict(r) for r in self.con.execute(
@@ -205,9 +220,14 @@ class Worker:
                 self._result(row, "expired", "approval expired")
                 out["skipped"] += 1
                 continue
-            reason = (checks.suppression_reason(self.con, row) or checks.consent_reason(row, self.cfg)
-                      or checks.first_touch_reason(self.con, row)
-                      or checks.stale_reason(self.con, row, action["prepared_at"]))
+            if row["channel"] == "crm":
+                row["crm"] = self._crm_payload(row)
+                reason = (checks.withdrawn_reason(self.con, row)
+                          or "; ".join(crm.validate_message({**row, "crm": row["crm"]}, crm.settings(self.paths))) or None)
+            else:
+                reason = (checks.suppression_reason(self.con, row) or checks.consent_reason(row, self.cfg)
+                          or checks.first_touch_reason(self.con, row)
+                          or checks.stale_reason(self.con, row, action["prepared_at"]))
             if reason:
                 with tx(self.con):
                     self._set(row["row_id"], "skipped", reason=reason)
@@ -215,7 +235,8 @@ class Worker:
                 out["skipped"] += 1
                 continue
             person_key = row["person_id"] or row["address"]
-            reason = checks.caps_reason(self.con, person_key, row["address"], self.cfg, row=row) or checks.window_reason(row, self.cfg)
+            reason = None if row["channel"] == "crm" else (
+                checks.caps_reason(self.con, person_key, row["address"], self.cfg, row=row) or checks.window_reason(row, self.cfg))
             if reason:  # try again later, never dropped silently
                 with tx(self.con):
                     self._set(row["row_id"], "queued", reason=reason,
@@ -223,7 +244,7 @@ class Worker:
                 out["deferred"] += 1
                 continue
             wait = self.cfg["pacing_seconds"] - (time.time() - last_send)
-            if wait > 0 and last_send:
+            if wait > 0 and last_send and row["channel"] != "crm":
                 time.sleep(wait)
             provider = self.provider(row["channel"])
             with tx(self.con):
@@ -249,6 +270,12 @@ class Worker:
                     self._set(row["row_id"], "failed", reason=str(err))
                 self._result(row, "failed", str(err))
                 out["failed"] += 1
+                continue
+            if row["channel"] == "crm":  # your own record: no touch, no first touch, no cap
+                with tx(self.con):
+                    self._set(row["row_id"], "sent", provider_msg_id=res["provider_msg_id"], reason=None)
+                self._result(row, "sent", provider_msg_id=res["provider_msg_id"])
+                out["sent"] += 1
                 continue
             last_send = time.time()
             with tx(self.con):

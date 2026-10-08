@@ -116,6 +116,8 @@ def apply(store, batch: Batch, *, client: str | None = None) -> dict:
                             source_ref=f"{sysname}:{ps['partner_key']}:{ps['type_id']}")
         ps_ids.append(pid)
         facts = [{"slot": slot, "value": ps[slot]} for slot in ("tier", "joined", "link", "code") if ps.get(slot)]
+        facts += [{"slot": slot, "value": ps[col]} for slot, col in (("crm_opportunity", "crm_opportunity_id"),
+                                                                     ("crm_contact", "crm_contact_id")) if ps.get(col)]
         if ps.get("conversions") not in (None, ""):
             facts.append({"slot": "conversions", "value": str(ps["conversions"])})
         if ps.get("last_conversion_at"):

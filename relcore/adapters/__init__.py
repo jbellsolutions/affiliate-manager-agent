@@ -16,7 +16,10 @@ def provider_for(channel: str, live: bool, env: dict, con=None):
     if not live:
         from .dry import DryProvider
         return DryProvider(con)
-    kind = env.get(f"RELSEND_{channel.upper()}_PROVIDER") or {"email": "composio", "sms": "ghl"}[channel]
+    kind = env.get(f"RELSEND_{channel.upper()}_PROVIDER") or {"email": "composio", "sms": "ghl", "crm": "ghl"}[channel]
+    if channel == "crm" and kind == "ghl":
+        from .crm_ghl import GhlCrm
+        return GhlCrm(env)
     if channel == "email" and kind == "composio":
         from .email_composio import ComposioEmail
         return ComposioEmail(env)

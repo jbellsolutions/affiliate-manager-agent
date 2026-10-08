@@ -5,7 +5,9 @@
 Builds the Harborline sample, then runs the real code through one cycle: a first-touch wave with its holdout, the
 owner's signed approval, the sender's checks and a dry send, the sample's fifteen replies read by the inbox and
 triaged by the floor, the sample call turned into commitments, an answer to the partner who offered a time, a
-partner plan for Peak Orthopedics and the scorecard. Open <dir>/vault in Obsidian.
+partner plan for Peak Orthopedics, the CRM pipeline catching up (signed, then written by the sender), a conversion
+the partner platform records five days later moving Peak forward in the CRM with a note, and the scorecard.
+Open <dir>/vault in Obsidian.
 """
 from __future__ import annotations
 
@@ -65,7 +67,8 @@ def _run(out: Path) -> dict:
     from .sender.worker import Worker
     owner = OWNERS["owners"][0]
     mock = MockProvider()
-    worker = Worker(paths, env={}, providers={"sms": mock, "email": mock})
+    crm_mock = MockProvider()
+    worker = Worker(paths, env={}, providers={"sms": mock, "email": mock, "crm": crm_mock})
 
     def approve_all():
         svc = Service(paths)
@@ -108,12 +111,30 @@ def _run(out: Path) -> dict:
     saved = plan.save(store, {"id": peak}, partner=PLAN,
                       internal={"promised": ["send the referral pad", "bring the surgeon brief to the Wednesday visit"],
                                 "measure": "first referral booked from the brief"}, employee="trp-f06-power-partner-builder")
+    # the CRM pipeline catches up with the cards: one bundle, the owner's signature, relsend writes it
+    from . import crm
+    from .importers import apply_conversions
+    shutil.copy(SAMPLE / "crm.json", etc / "crm.json")
+    _at("2026-10-01T20:00:00Z")
+    crm_first = crm.prepare(store)
+    approve_all()
+    worker.run_once()
+    ingest.run(store)
+
+    # five days later the partner platform records Peak's next conversion: the pipeline moves and the CRM gets a note
+    _at("2026-10-06T16:00:00Z")
+    apply_conversions(store, [{"platform_id": "plat-peak", "code": "PEAK", "conversions": 7, "last_conversion_at": "2026-10-06"}])
+    crm_conversion = ingest.run(store).get("crm") or {}
+    approve_all()
+    worker.run_once()
+    ingest.run(store)
     card = scorecard.write(store, days=30)
     for emp in {r["employee"] for r in store.con.execute("SELECT DISTINCT employee FROM actions WHERE employee IS NOT NULL")}:
         store.vault.render_employee(emp)
     summary = {"vault": str(paths.vault), "wave": wave.get("action_id"), "wave_messages": wave["messages"],
                "sent": len(mock.sent), "replies_answered": answered, "plan": saved.get("plan"), "plan_ok": saved.get("ok"),
-               "scorecard": card["note"], "cards": sum(1 for _ in paths.vault.rglob("*.md")), "at": clock.iso()}
+               "crm_writes": len(crm_mock.sent), "crm_first": crm_first.get("action_id"),
+               "crm_conversion": crm_conversion.get("action_id"), "scorecard": card["note"], "cards": sum(1 for _ in paths.vault.rglob("*.md")), "at": clock.iso()}
     worker.con.close()
     store.con.close()
     return summary

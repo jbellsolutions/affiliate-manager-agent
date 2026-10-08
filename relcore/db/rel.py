@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS action_messages (
   address TEXT NOT NULL, subject TEXT, body TEXT NOT NULL, body_hash TEXT NOT NULL, hook TEXT, template TEXT, arm TEXT,
   reply_to TEXT, context_digest TEXT, state TEXT NOT NULL DEFAULT 'prepared', first_touch_flag INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (action_id, n));
+CREATE TABLE IF NOT EXISTS crm_writes (action_id TEXT NOT NULL, n INTEGER NOT NULL, partnership_id TEXT NOT NULL, payload TEXT NOT NULL,
+  PRIMARY KEY (action_id, n));
 CREATE TABLE IF NOT EXISTS reservations (entity_id TEXT PRIMARY KEY, action_id TEXT NOT NULL, expires_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS drafts (
   id INTEGER PRIMARY KEY, entity_id TEXT NOT NULL, partnership_id TEXT, channel TEXT NOT NULL, subject TEXT, body TEXT NOT NULL,

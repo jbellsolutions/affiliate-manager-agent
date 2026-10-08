@@ -166,6 +166,10 @@ def results(store, folder=None) -> dict:
         aid, n, state = doc["action_id"], doc["n"], doc["state"]
         msg = store.con.execute("SELECT * FROM action_messages WHERE action_id=? AND n=?", (aid, n)).fetchone()
         touched = set()
+        if msg and msg["channel"] == "crm":
+            _crm_result(store, path.name, msg, doc)
+            out["unknown" if state == "unknown" else "sent" if state == "sent" else "other"] += 1
+            continue
         with tx(store.con):
             _mark(store, "results", path.name, state)
             if not msg:
@@ -203,6 +207,26 @@ def results(store, folder=None) -> dict:
         if store.render_enabled and touched:
             store.vault.render_around(touched)
     return out
+
+
+def _crm_result(store, name: str, msg, doc: dict) -> None:
+    from . import crm
+    aid, n, state, ps = msg["action_id"], msg["n"], doc["state"], msg["partnership_id"]
+    with tx(store.con):
+        _mark(store, "results", name, state)
+        store.con.execute("UPDATE action_messages SET state=? WHERE action_id=? AND n=?", (state, aid, n))
+        if state == "unknown":
+            task(store, "send_unknown", ps, f"Check whether CRM write {aid} #{n} went through",
+                 "relsend could not tell if the CRM accepted it and has halted. Check the record in the CRM, then resolve it "
+                 "from the relsend console (resolve <row_id> sent|not_sent).", urgent=True, ref=f"unknown:{aid}:{n}")
+        elif state != "sent":
+            store._timeline(ps, f"CRM write {aid} #{n} {state}: {doc.get('reason') or ''}".strip(), f"result:{aid}:{n}")
+        _release_if_done(store, aid)
+    payload = crm.payload(store, aid, n)
+    if state == "sent" and payload:
+        crm.record(store, ps, payload, doc.get("at") or clock.iso())
+    elif store.render_enabled:
+        store.vault.render_around({ps})
 
 
 # ---------------------------------------------------------------- inbound (relsend inbox)
@@ -425,6 +449,8 @@ def _run(store) -> dict:
            "calls": calls.run_drop(store)}
     if os.environ.get("RELCORE_CALLS_GHL") == "1":
         out["calls_ghl"] = calls.run_ghl(store, dict(os.environ))
+    from . import crm
+    out["crm"] = crm.auto(store)  # the CRM pipeline catches up with the cards, after the owner approves
     if store.render_enabled:
         for emp in {r["employee"] for r in store.con.execute("SELECT DISTINCT employee FROM actions WHERE employee IS NOT NULL")}:
             store.vault.render_employee(emp)

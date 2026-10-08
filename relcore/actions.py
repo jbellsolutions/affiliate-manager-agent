@@ -264,7 +264,7 @@ def _prepare_wave(store, *, employee: str, size: int | None = None, segments=Non
             anomalies.append(f"{store.label(c['person_id'])}: UCS-2 sms ({check['segments']} segments)")
         n += 1
         bundle["messages"].append(_message(store, n, c, draft, digest))
-    selection = {"rule": f"segments {list(segments)}; owner {employee}; program {program or 'none'}; channels {channels}",
+    selection = {"rule": f"segments {', '.join(segments)}; owner {employee or 'any employee'}; program {program or 'none'}; channels {', '.join(channels)}",
                  "picked": len(bundle["messages"]), "held_out": len(held), "skipped": dict(sorted(skipped.items()))}
     if not bundle["messages"]:
         return {"action_id": None, "messages": 0, "selection": selection, "anomalies": anomalies}
@@ -323,9 +323,9 @@ def withdraw(store, action_id: str, reason: str) -> dict:
 def write_review(store, bundle: dict) -> str:
     """Reviews/<date> <action>.md: for reading in Obsidian. The approval card is built by relapprove from the bundle."""
     sel, msgs = bundle["selection"], bundle["messages"]
-    lines = ["---", "type: review", f"action: {bundle['action_id']}", f"kind: {bundle['kind']}", f"employee: {bundle['employee']}",
+    lines = ["---", "type: review", f"action: {bundle['action_id']}", f"kind: {bundle['kind']}", f"employee: {bundle['employee'] or 'orchestrator'}",
              f"expires: {bundle['expires_at']}", "tags:", "  - trp/review", "---", f"# Review {bundle['action_id']}", "",
-             f"Prepared by {bundle['employee']} for {bundle['voice']['name'] if bundle.get('voice') else 'the owner'} to approve. "
+             f"Prepared by {bundle['employee'] or 'the orchestrator'} for {bundle['voice']['name'] if bundle.get('voice') else 'the owner'} to approve. "
              "Approve, approve except, edit or reject in the approvals channel. Nothing is sent until then.", "",
              "## Anomalies", *([f"- {a}" for a in bundle["anomalies"]] or ["- none"]), "",
              "## Selection", f"- rule: {sel['rule']}", f"- picked: {sel['picked']}", f"- held out: {sel['held_out']}"]
@@ -337,7 +337,8 @@ def write_review(store, bundle: dict) -> str:
     for (template, hook), items in sorted(groups.items(), key=lambda kv: str(kv[0])):
         lines += ["", f"### {template} · hook {hook} · {len(items)}"]
         for m in items:
-            lines += ["", f"**{m['n']}. {m['recipient']}** · {m['channel']} · {m['segment'] or ''} · arm {m.get('arm') or '-'}"]
+            tags = [m["channel"], m["segment"], m.get("arm") and f"arm {m['arm']}"]
+            lines += ["", f"**{m['n']}. {m['recipient']}** · " + " · ".join(t for t in tags if t)]
             if m["subject"]:
                 lines.append(f"Subject: {m['subject']}")
             lines += ["", *[f"> {l}" if l else ">" for l in m["body"].splitlines()]]

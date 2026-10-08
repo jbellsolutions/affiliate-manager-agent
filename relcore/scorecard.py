@@ -133,19 +133,21 @@ def markdown(card: dict) -> str:
              f"Window: {w['since']} to {w['until']} ({w['days']} days). Production is from the system of record, never message volume.", "",
              f"- Reachable, consented partnerships: {card['reachable_consented_partnerships']['n']}",
              f"- Replies counted: {card['replies']['counted_as_replies']} of {card['replies']['turns']} "
-             f"({card['replies']['positive']} positive, {card['replies']['identity_questions']} identity questions)",
+             f"({card['replies']['positive']} positive, {card['replies']['identity_questions']} identity question{'' if card['replies']['identity_questions'] == 1 else 's'})",
              f"- Median hours to our reply: {card['replies']['median_hours_to_our_reply']}",
              f"- Engaged: {card['funnel']['engaged']} · registered {card['funnel']['registered']} · first conversion "
              f"{card['funnel']['first_conversion']} · repeat {card['funnel']['repeat']} · lapsed {card['funnel']['lapsed']}",
              f"- Conversions on record: {card['production']['conversions_on_record']}",
              f"- Calls held: {card['calls_held']} · plans sent: {card['plans_sent']}",
-             f"- Grievances: {card['grievances'] or 'none'}", "", "## Waves"]
+             f"- Grievances: {', '.join(f'{n} {k}' for k, n in card['grievances'].items()) or 'none'}", "", "## Waves"]
     for wv in card["waves"]:
         lift = wv["lift"]
-        lines += [f"- {wv['wave']} ({wv['prepared']}, {wv['employee']}): sent {wv['sent']}, undelivered {wv['undelivered']}, "
+        held = (f"holdout {lift['holdout']['converted_pct']}% of {lift['holdout']['n']}" if lift["holdout"]["n"]
+                else "no holdout in this wave")
+        lines += [f"- {wv['wave']} ({wv['prepared']}, {wv['employee'] or 'orchestrator'}): sent {wv['sent']}, undelivered {wv['undelivered']}, "
                   f"opt-outs per 100 {wv['opt_outs_per_100_sends']}, positive replies {wv['positive_reply_rate']}%; "
-                  f"converted {lift['contacted']['converted_pct']}% of {lift['contacted']['n']} vs holdout "
-                  f"{lift['holdout']['converted_pct']}% of {lift['holdout']['n']}" + (f" ({lift['caution']})" if lift["caution"] else "")]
+                  f"converted {lift['contacted']['converted_pct']}% of {lift['contacted']['n']} vs {held}"
+                  + (f" ({lift['caution']})" if lift["caution"] else "")]
     if not card["waves"]:
         lines.append("- none in this window")
     return "\n".join(lines) + "\n"

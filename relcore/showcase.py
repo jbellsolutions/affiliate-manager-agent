@@ -129,6 +129,8 @@ def _run(out: Path) -> dict:
     worker.run_once()
     ingest.run(store)
     card = scorecard.write(store, days=30)
+    from . import pipeline
+    pipeline.write(store)
     for emp in {r["employee"] for r in store.con.execute("SELECT DISTINCT employee FROM actions WHERE employee IS NOT NULL")}:
         store.vault.render_employee(emp)
     summary = {"vault": str(paths.vault), "wave": wave.get("action_id"), "wave_messages": wave["messages"],

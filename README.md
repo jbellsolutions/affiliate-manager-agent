@@ -160,7 +160,13 @@ Conversion on record  ->  CRM pipeline moves (approved)  ->  Scorecard
 - [x] On Orgo the update waits in the outbox: you make the change in your CRM, and `rel_sent_record` puts the confirmed stage on the card
 - [x] On the True Revenue Partner droplet the sender writes it to the CRM after a signed approval
 
-### 11. The scorecard judges the program by production
+### 11. The pipeline, and where every partner came from
+
+- [x] `relcore pipeline` writes a report into Obsidian: how many partnerships sit at each stage
+- [x] A Sankey chart from where each partnership came from (an introduction on the graph, a website form, research, an event, your CRM list) to where it is now
+- [x] How far each origin gets, with its conversions on record, so you see which sources are worth more of your time
+
+### 12. The scorecard judges the program by production
 
 - [x] Reachable, consented partnerships as the denominator
 - [x] Replies, positive replies, our median time to reply, the funnel from engaged to repeat

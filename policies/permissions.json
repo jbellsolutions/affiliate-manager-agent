@@ -82,6 +82,7 @@
     "rel_replies_prepare": "relationship.prepare_external_action",
     "rel_action_withdraw": "relationship.prepare_external_action",
     "rel_crm_status": "performance.analyze_or_report",
+    "rel_pipeline": "performance.analyze_or_report",
     "rel_crm_prepare": "relationship.prepare_external_action"
   },
   "standing_external_write_autonomy_enabled": false

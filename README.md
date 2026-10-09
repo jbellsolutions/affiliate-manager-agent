@@ -2,19 +2,21 @@
 
 **A relationship program operator for partner recruiting, onboarding, activation and contextual follow-through.**
 
-[![Watch the Revenue Partnerships Program Manager relationship layer](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/assets/relationship-video-poster.svg)](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/)
+[![Watch the Revenue Partnerships Program Manager relationship layer](https://jbellsolutions.github.io/ai-guy-gtm-workforce/assets/relationship-video-poster.svg)](https://jbellsolutions.github.io/ai-guy-gtm-workforce/)
 
-**[▶ Watch the narrated relationship walkthrough · 2:38](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/)** · [Explore the cold-email workforce](https://github.com/jbellsolutions/james-camp-ai-guy-gtm)
+**[▶ Watch the narrated relationship walkthrough · 2:38](https://jbellsolutions.github.io/ai-guy-gtm-workforce/)** · [Explore the cold-email workforce](https://github.com/jbellsolutions/ai-guy-gtm-workforce)
 
 *The video uses fictional sample contacts. The client-facing name is Revenue Partnerships Program Manager; repository, skill and runtime identifiers remain `affiliate-manager` for compatibility.*
 
 > **[Orgo](https://orgo.ai?r=aiguy) partner offer:** Get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
 
-![Affiliate Manager Agent coordinating a partner network](docs/assets/affiliate-manager-hero.jpg)
+<img src="docs/assets/revenue-partnerships-program-manager-card.webp" width="420" alt="Revenue Partnerships Program Manager, the relationship builder: recruits power partners, affiliates and creators, keeps a living relationship card for every partner, and activates, supports and reactivates the program">
+
+![The Revenue Partnerships Program Manager coordinating a partner network](docs/assets/affiliate-manager-hero.jpg)
 
 Your always-on AI operator for recruiting, activating, supporting, and growing revenue-producing partner relationships, with a living relationship card for every affiliate, partner and partnership.
 
-This repository installs a guarded [Hermes](https://github.com/NousResearch/hermes-agent) agent with an Affiliate Manager operating brief, persistent memory, optional Slack or Telegram access, and an optional cold-email workflow. The agent prepares work and keeps the program moving; a human remains in control of outreach, terms, payouts, and account access.
+This repository installs a guarded [Hermes](https://github.com/NousResearch/hermes-agent) agent with a Revenue Partnerships Program Manager operating brief, persistent memory, optional Slack or Telegram access, and an optional cold-email workflow. The agent prepares work and keeps the program moving; a human remains in control of outreach, terms, payouts, and account access.
 
 ## Your partners remember every conversation. Now your program does too.
 
@@ -168,9 +170,9 @@ Scorecard  <-  Partner plan  <-  Calls  <-  Replies triaged  <-  Approved send
 
 ## Where it runs
 
-relcore, the engine behind the cards, ships in two products: **True Revenue Partner** (the full partnership program builder) and **[Affiliate Manager Agent](https://github.com/jbellsolutions/affiliate-manager-agent)** (the affiliate operator on Orgo).
+relcore, the engine behind the cards, ships in two products: **True Revenue Partner** (the full partnership program builder) and **[Revenue Partnerships Program Manager](https://github.com/jbellsolutions/affiliate-manager-agent)** (the program operator on Orgo).
 
-| | True Revenue Partner on a droplet | Affiliate Manager on Orgo | True Revenue Partner as a Claude Code plugin |
+| | True Revenue Partner on a droplet | Revenue Partnerships Program Manager on Orgo | True Revenue Partner as a Claude Code plugin |
 |---|---|---|---|
 | Cards, graph, context briefs | yes | yes | yes |
 | Waves, holdouts, review notes, lint | yes | yes | yes |
@@ -268,7 +270,7 @@ Run these on the Orgo computer after setup, then open `~/AffiliateVault` in Obsi
 
 **Will this get me more referrals?** No tool can promise that, and this one does not. It makes sure every partner is treated like you remember them, and it tells you honestly, against a holdout, what changed.
 
-## What the Affiliate Manager does
+## What the Revenue Partnerships Program Manager does
 
 The Relationship Layer is the memory. The agent around it is the operator.
 
@@ -308,7 +310,7 @@ https://github.com/jbellsolutions/affiliate-manager-agent
 Then say:
 
 ```text
-Install this Affiliate Manager for me. Read AGENTS.md and START-HERE.md first.
+Install this Revenue Partnerships Program Manager for me. Read AGENTS.md and START-HERE.md first.
 Tell me what I need, what may cost money, what you will change, and every point
 where I must approve or sign in. Handle all technical work, keep credentials in
 private prompts or the secret vault, reuse my existing Orgo computer if it is
@@ -379,7 +381,7 @@ drafts; it contains no automatic-send path. See `agent.example.env` and the
 
 - An [Orgo](https://orgo.ai?r=aiguy)-first Hermes v0.21.0 agent pinned to an exact release, commit, Docker
   digest, and installer checksum.
-- The Affiliate Manager role and operating guardrails in `hermes/data/`.
+- The Revenue Partnerships Program Manager role and operating guardrails in `hermes/data/`.
 - Current checkpoints, memory, verification-on-stop, secret and PII redaction,
   manual approvals, cron-deny, loop-stop, and reviewed-skill settings.
 - Persistent operational memory and a git-backed Obsidian vault.
@@ -429,7 +431,7 @@ release process.
 ## Funding Partnerships Director for Grok Bot
 
 The sanitized, funding-specific Grok Bot edition is in
-[`grok-bot/`](grok-bot/). It turns the general Affiliate Manager into a Funding
+[`grok-bot/`](grok-bot/). It turns the general Revenue Partnerships Program Manager into a Funding
 Partnerships Director with clear ownership of partner segmentation, recruiting,
 onboarding, activation, campaign support, attribution review, reporting, and
 reactivation. Follow [`grok-bot/INSTALL.md`](grok-bot/INSTALL.md) to create a

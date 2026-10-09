@@ -2,6 +2,12 @@
 
 > **[Orgo](https://orgo.ai?r=aiguy) partner offer:** Get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
 
+## Watch it work, end to end
+
+[![Watch: the Relationship Layer, end to end (2:38)](docs/assets/relationship/walkthrough-poster.jpg)](docs/assets/relationship/walkthrough.mp4)
+
+**A 2:38 narrated walkthrough.** Follow one partner from the first message to a pipeline that moved in the CRM: the context card, how a unique message is written from it, the approval, the reply, the conversion, the CRM update, and the pipeline graphs right in Obsidian. *Fictional sample program; every name and number is invented.*
+
 ![Affiliate Manager Agent coordinating a partner network](docs/assets/affiliate-manager-hero.jpg)
 
 Your always-on AI operator for recruiting, activating, supporting, and growing revenue-producing partner relationships, with a living relationship card for every affiliate, partner and partnership.

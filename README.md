@@ -1,4 +1,12 @@
-# Affiliate Manager Agent
+# Revenue Partnerships Program Manager
+
+**A relationship program operator for partner recruiting, onboarding, activation and contextual follow-through.**
+
+[![Watch the Revenue Partnerships Program Manager relationship layer](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/assets/relationship-video-poster.svg)](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/)
+
+**[▶ Watch the narrated relationship walkthrough · 2:38](https://jbellsolutions.github.io/james-camp-ai-guy-gtm/)** · [Explore the cold-email workforce](https://github.com/jbellsolutions/james-camp-ai-guy-gtm)
+
+*The video uses fictional sample contacts. The client-facing name is Revenue Partnerships Program Manager; repository, skill and runtime identifiers remain `affiliate-manager` for compatibility.*
 
 > **[Orgo](https://orgo.ai?r=aiguy) partner offer:** Get 25% off your first three months on a monthly plan or your first year on a yearly plan. Add-ons are not discounted.
 
